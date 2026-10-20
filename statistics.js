@@ -2094,3 +2094,168 @@
         count,
         total,
         color,
+        percentage
+    ) {
+        const width = total > 0
+            ? clamp(percentage, 0, 100)
+            : 0;
+
+        return `
+            <div class="statistics-distribution-row">
+
+                <div class="statistics-distribution-label">
+
+                    <span>${escapeHTML(label)}</span>
+
+                    <strong>
+                        ${formatInteger(count)}
+                        <small>회</small>
+                    </strong>
+
+                </div>
+
+                <div
+                    class="statistics-distribution-track"
+                    role="progressbar"
+                    aria-label="${escapeHTML(label)} 비율"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="${width}"
+                >
+
+                    <div
+                        class="statistics-distribution-fill"
+                        style="
+                            width: ${width}%;
+                            background: ${getSafeColor(color)};
+                        "
+                    ></div>
+
+                </div>
+
+                <div class="statistics-distribution-percent">
+                    ${formatPercentage(percentage)}
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    /* -----------------------------------------------------
+       22. No Data Message
+       ----------------------------------------------------- */
+
+    function renderNoDataMessage(message) {
+        return `
+            <div class="statistics-no-data">
+                <span class="statistics-no-data-icon">◇</span>
+
+                <p>${escapeHTML(message)}</p>
+            </div>
+        `;
+    }
+
+
+    /* -----------------------------------------------------
+       23. History Information Note
+       ----------------------------------------------------- */
+
+    function renderDataNote(summary) {
+        const retainedHistory = summary.recordedHistory;
+
+        return `
+            <div class="statistics-data-note">
+
+                <span class="statistics-data-note-icon">ⓘ</span>
+
+                <p>
+                    누적 수입·지출과 총 뽑기 횟수는 저장된 전체 누적값을 사용합니다.
+                    반면 평균, 숫자 빈도, 홀짝 비율, 소수·합성수 비율과
+                    희귀도 분포는 현재 저장된 뽑기 내역을 기준으로 계산합니다.
+                    거래 내역은 최대 ${formatInteger(HISTORY_LIMIT)}건까지 보관하도록 설정되어 있습니다.
+                    현재 저장된 거래 기록은 ${formatInteger(retainedHistory)}건입니다.
+                </p>
+
+            </div>
+        `;
+    }
+
+
+    /* -----------------------------------------------------
+       24. Public API
+       ----------------------------------------------------- */
+
+    window.VioletStatistics = {
+        init: function () {
+            render(currentState);
+        },
+
+        render,
+
+        getSummary,
+
+        getDrawEntries,
+
+        getTransactionEntries,
+
+        getOddEvenStats,
+
+        getPrimeCompositeStats,
+
+        getDigitStats,
+
+        getRewardRangeStats,
+
+        getRarityStats,
+
+        getBankStats,
+
+        getStockStats,
+
+        isPrime,
+
+        formatMoney,
+
+        formatPercentage,
+
+        getLastSummary: function () {
+            return lastSummary;
+        },
+
+        getState: function () {
+            return currentState;
+        },
+
+        reset: function () {
+            /*
+             * Statistics are calculated from the main game state.
+             * This method intentionally does not delete transaction
+             * history or modify the player's financial records.
+             *
+             * Use Violet Vault's main reset system to reset game data.
+             */
+            lastSummary = null;
+        }
+    };
+
+
+    /* -----------------------------------------------------
+       25. Automatic Initialization
+       ----------------------------------------------------- */
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                const root = getRoot();
+
+                if (root && currentState) {
+                    render(currentState);
+                }
+            },
+            { once: true }
+        );
+    }
+
+})();
