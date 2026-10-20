@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    VIOLET VAULT
    Game Data & Configuration — data.js
@@ -503,4 +502,3 @@
     );
 
 })();
-```
