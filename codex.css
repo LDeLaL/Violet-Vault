@@ -1,0 +1,1054 @@
+```css
+/* =========================================================
+   VIOLET VAULT
+   Codex Design — codex.css
+   Violet Neon Collection System
+   ========================================================= */
+
+/* =========================================================
+   1. CODEX VARIABLES
+   ========================================================= */
+
+:root {
+    --codex-bg: rgba(12, 7, 20, 0.88);
+    --codex-card-bg: rgba(22, 13, 35, 0.88);
+    --codex-card-hover: rgba(36, 20, 56, 0.96);
+
+    --codex-purple: #a855f7;
+    --codex-purple-light: #c084fc;
+    --codex-purple-bright: #e9d5ff;
+
+    --codex-text: #f5efff;
+    --codex-text-secondary: #b9a8d1;
+    --codex-text-muted: #79688f;
+
+    --codex-border: rgba(168, 85, 247, 0.20);
+    --codex-border-hover: rgba(192, 132, 252, 0.55);
+
+    --codex-glow:
+        0 0 12px rgba(168, 85, 247, 0.18);
+
+    --codex-radius: 12px;
+}
+
+
+/* =========================================================
+   2. CODEX MAIN CONTAINER
+   ========================================================= */
+
+.codex-interface {
+    width: 100%;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+
+    color: var(--codex-text);
+    animation: codexAppear 300ms ease both;
+}
+
+@keyframes codexAppear {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   3. COLLECTION OVERVIEW
+   ========================================================= */
+
+.codex-overview {
+    position: relative;
+
+    padding: 21px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--codex-border);
+    border-radius: 14px;
+
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(126, 34, 206, 0.16),
+            transparent 55%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(26, 15, 42, 0.95),
+            rgba(13, 8, 22, 0.96)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.codex-overview::before {
+    content: "";
+
+    position: absolute;
+    top: -65px;
+    right: -45px;
+
+    width: 160px;
+    height: 160px;
+
+    border-radius: 50%;
+
+    background: rgba(168, 85, 247, 0.09);
+    filter: blur(35px);
+
+    pointer-events: none;
+}
+
+.codex-overview-heading {
+    position: relative;
+    z-index: 1;
+
+    margin-bottom: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.codex-overview-label {
+    color: var(--codex-text-muted);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+}
+
+.codex-progress-text {
+    color: var(--codex-purple-bright);
+
+    font-size: 16px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+
+    text-shadow:
+        0 0 12px rgba(168, 85, 247, 0.24);
+}
+
+
+/* =========================================================
+   4. COLLECTION PROGRESS BAR
+   ========================================================= */
+
+.codex-progress-track {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    height: 9px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(168, 85, 247, 0.12);
+    border-radius: 20px;
+
+    background: rgba(4, 2, 9, 0.8);
+}
+
+.codex-progress-fill {
+    position: relative;
+
+    width: 0%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        #6b21a8,
+        #9333ea,
+        #c084fc
+    );
+
+    box-shadow:
+        0 0 12px rgba(168, 85, 247, 0.45),
+        0 0 24px rgba(168, 85, 247, 0.15);
+
+    transition: width 450ms ease;
+}
+
+.codex-progress-fill::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.35),
+        transparent
+    );
+
+    opacity: 0.55;
+}
+
+.codex-progress-description {
+    position: relative;
+    z-index: 1;
+
+    margin: 12px 0 0;
+
+    color: var(--codex-text-secondary);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   5. SEARCH AND FILTER TOOLBAR
+   ========================================================= */
+
+.codex-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.codex-search-wrapper {
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.codex-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+
+    transform: translateY(-50%);
+
+    color: var(--codex-purple-light);
+    font-size: 21px;
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+.codex-search {
+    width: 100%;
+    min-width: 0;
+    min-height: 45px;
+
+    padding: 11px 14px 11px 42px;
+
+    border: 1px solid var(--codex-border);
+    border-radius: 10px;
+
+    background: rgba(10, 6, 17, 0.8);
+    color: var(--codex-text);
+
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.codex-search::placeholder {
+    color: #756387;
+}
+
+.codex-search:hover {
+    border-color: rgba(168, 85, 247, 0.34);
+}
+
+.codex-search:focus {
+    border-color: var(--codex-purple-light);
+
+    background: rgba(17, 9, 29, 0.98);
+
+    box-shadow:
+        0 0 0 3px rgba(168, 85, 247, 0.09),
+        0 0 18px rgba(168, 85, 247, 0.08);
+}
+
+.codex-search::-webkit-search-cancel-button {
+    cursor: pointer;
+    filter: grayscale(1);
+}
+
+.codex-filter-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.codex-filter,
+.codex-sort {
+    width: 100%;
+    min-width: 0;
+    min-height: 41px;
+
+    padding: 9px 30px 9px 12px;
+
+    border: 1px solid var(--codex-border);
+    border-radius: 9px;
+
+    background-color: rgba(18, 10, 29, 0.92);
+    color: var(--codex-text-secondary);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+    outline: none;
+
+    transition:
+        border-color 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.codex-filter:hover,
+.codex-sort:hover {
+    border-color: var(--codex-border-hover);
+    color: var(--codex-text);
+}
+
+.codex-filter:focus,
+.codex-sort:focus {
+    border-color: var(--codex-purple-light);
+
+    box-shadow:
+        0 0 0 3px rgba(168, 85, 247, 0.08);
+}
+
+.codex-filter option,
+.codex-sort option {
+    background: #160d24;
+    color: #f5efff;
+}
+
+.codex-visually-hidden {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* =========================================================
+   6. CODEX GRID
+   ========================================================= */
+
+.codex-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   7. CODEX CARD BASE
+   ========================================================= */
+
+.codex-item {
+    --codex-rarity-color: #aaa2bb;
+
+    position: relative;
+
+    min-width: 0;
+    min-height: 156px;
+
+    padding: 14px 13px 12px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(168, 85, 247, 0.17);
+    border-radius: var(--codex-radius);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(27, 16, 43, 0.9),
+            rgba(12, 8, 21, 0.96)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.018);
+
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.codex-item::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--codex-rarity-color);
+
+    opacity: 0.4;
+
+    transition: opacity 180ms ease;
+}
+
+.codex-item:hover {
+    transform: translateY(-3px);
+
+    border-color: rgba(168, 85, 247, 0.42);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(36, 20, 56, 0.96),
+            rgba(16, 9, 27, 0.98)
+        );
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.2),
+        0 0 16px rgba(168, 85, 247, 0.07);
+}
+
+.codex-item:hover::before {
+    opacity: 0.9;
+}
+
+
+/* =========================================================
+   8. CARD HEADER
+   ========================================================= */
+
+.codex-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+}
+
+.codex-item-symbol {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--codex-rarity-color) 38%,
+        transparent
+    );
+
+    border-radius: 9px;
+
+    background: color-mix(
+        in srgb,
+        var(--codex-rarity-color) 9%,
+        transparent
+    );
+
+    color: var(--codex-rarity-color);
+    font-size: 17px;
+
+    text-shadow:
+        0 0 12px color-mix(
+            in srgb,
+            var(--codex-rarity-color) 40%,
+            transparent
+        );
+}
+
+.codex-item-status {
+    max-width: 100%;
+    padding: 4px 6px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(168, 85, 247, 0.12);
+    border-radius: 5px;
+
+    background: rgba(168, 85, 247, 0.035);
+    color: var(--codex-text-muted);
+
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   9. CARD MAIN CONTENT
+   ========================================================= */
+
+.codex-item-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.codex-item-amount {
+    max-width: 100%;
+
+    color: var(--codex-text);
+
+    font-size: clamp(17px, 1.8vw, 23px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+
+    overflow-wrap: anywhere;
+
+    font-variant-numeric: tabular-nums;
+
+    text-shadow:
+        0 0 14px rgba(168, 85, 247, 0.12);
+}
+
+.codex-item-rarity {
+    max-width: 100%;
+
+    color: var(--codex-rarity-color);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+
+    overflow-wrap: anywhere;
+}
+
+.codex-item-description {
+    margin: 0;
+
+    color: var(--codex-text-muted);
+
+    font-size: 10px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   10. CARD BOTTOM ACCENT
+   ========================================================= */
+
+.codex-item-accent {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--codex-rarity-color),
+        transparent
+    );
+
+    opacity: 0.5;
+}
+
+
+/* =========================================================
+   11. LOCKED ENTRIES
+   ========================================================= */
+
+.codex-item.is-locked {
+    border-color: rgba(121, 104, 143, 0.15);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 14, 27, 0.83),
+            rgba(11, 8, 16, 0.96)
+        );
+
+    box-shadow: none;
+}
+
+.codex-item.is-locked::before {
+    background: #4a3c5a;
+    opacity: 0.45;
+}
+
+.codex-item.is-locked .codex-item-symbol {
+    border-color: rgba(121, 104, 143, 0.18);
+
+    background: rgba(121, 104, 143, 0.045);
+
+    color: #776785;
+
+    text-shadow: none;
+}
+
+.codex-item.is-locked .codex-item-status {
+    border-color: rgba(121, 104, 143, 0.15);
+
+    background: rgba(121, 104, 143, 0.04);
+
+    color: #74657f;
+}
+
+.codex-item.is-locked .codex-item-amount {
+    color: #71617f;
+
+    font-size: 20px;
+    letter-spacing: 2px;
+
+    text-shadow: none;
+}
+
+.codex-item.is-locked .codex-item-rarity {
+    color: #786988;
+}
+
+.codex-item.is-locked .codex-item-description {
+    color: #62536f;
+}
+
+.codex-item.is-locked .codex-item-accent {
+    background: #554461;
+    opacity: 0.2;
+}
+
+.codex-item.is-locked:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(168, 85, 247, 0.25);
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   12. RARITY CARD COLORS
+   ========================================================= */
+
+.codex-item.rarity-common {
+    --codex-rarity-color: #aaa2bb;
+}
+
+.codex-item.rarity-uncommon {
+    --codex-rarity-color: #73dca5;
+}
+
+.codex-item.rarity-rare {
+    --codex-rarity-color: #62a9ff;
+}
+
+.codex-item.rarity-epic {
+    --codex-rarity-color: #bd83ff;
+}
+
+.codex-item.rarity-legendary {
+    --codex-rarity-color: #ffcf70;
+}
+
+.codex-item.rarity-mythic {
+    --codex-rarity-color: #ff80d0;
+}
+
+.codex-item.rarity-ultimate {
+    --codex-rarity-color: #f1d5ff;
+}
+
+
+/* =========================================================
+   13. SPECIAL RARITY EFFECTS
+   ========================================================= */
+
+.codex-item.is-collected.rarity-legendary {
+    border-color: rgba(255, 207, 112, 0.22);
+}
+
+.codex-item.is-collected.rarity-legendary:hover {
+    border-color: rgba(255, 207, 112, 0.55);
+
+    box-shadow:
+        0 0 20px rgba(255, 207, 112, 0.08),
+        0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.codex-item.is-collected.rarity-mythic {
+    border-color: rgba(255, 128, 208, 0.22);
+}
+
+.codex-item.is-collected.rarity-mythic:hover {
+    border-color: rgba(255, 128, 208, 0.58);
+
+    box-shadow:
+        0 0 20px rgba(255, 128, 208, 0.1),
+        0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.codex-item.is-collected.rarity-ultimate {
+    border-color: rgba(216, 180, 254, 0.4);
+
+    background:
+        radial-gradient(
+            ellipse at top right,
+            rgba(168, 85, 247, 0.17),
+            transparent 65%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(33, 17, 52, 0.97),
+            rgba(14, 8, 24, 0.98)
+        );
+
+    box-shadow:
+        inset 0 0 22px rgba(168, 85, 247, 0.07),
+        0 0 14px rgba(168, 85, 247, 0.06);
+}
+
+.codex-item.is-collected.rarity-ultimate::before {
+    height: 3px;
+    opacity: 0.9;
+}
+
+.codex-item.is-collected.rarity-ultimate .codex-item-amount {
+    color: #f1d5ff;
+
+    text-shadow:
+        0 0 12px rgba(216, 180, 254, 0.34),
+        0 0 24px rgba(168, 85, 247, 0.15);
+}
+
+.codex-item.is-collected.rarity-ultimate:hover {
+    border-color: rgba(233, 213, 255, 0.75);
+
+    box-shadow:
+        inset 0 0 26px rgba(168, 85, 247, 0.1),
+        0 0 24px rgba(168, 85, 247, 0.15);
+}
+
+
+/* =========================================================
+   14. EMPTY SEARCH RESULTS
+   ========================================================= */
+
+.codex-empty {
+    margin: 0;
+    padding: 38px 16px;
+
+    border: 1px dashed rgba(168, 85, 247, 0.22);
+    border-radius: 12px;
+
+    background: rgba(168, 85, 247, 0.025);
+
+    color: var(--codex-text-muted);
+
+    font-size: 12px;
+    line-height: 1.8;
+    text-align: center;
+}
+
+.codex-empty[hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   15. CODEX FOOTER
+   ========================================================= */
+
+.codex-footer {
+    padding-top: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    border-top: 1px solid rgba(168, 85, 247, 0.11);
+
+    color: var(--codex-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   16. LIGHT THEME
+   ========================================================= */
+
+body.light-theme {
+    --codex-bg: rgba(255, 255, 255, 0.92);
+    --codex-card-bg: rgba(255, 255, 255, 0.95);
+    --codex-card-hover: #ffffff;
+
+    --codex-text: #281638;
+    --codex-text-secondary: #6e5786;
+    --codex-text-muted: #9582a8;
+
+    --codex-border: rgba(126, 34, 206, 0.16);
+    --codex-border-hover: rgba(126, 34, 206, 0.4);
+}
+
+body.light-theme .codex-overview {
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(168, 85, 247, 0.09),
+            transparent 60%
+        ),
+        #ffffff;
+}
+
+body.light-theme .codex-search {
+    background: #ffffff;
+    color: #281638;
+}
+
+body.light-theme .codex-search::placeholder {
+    color: #9582a8;
+}
+
+body.light-theme .codex-filter,
+body.light-theme .codex-sort {
+    background-color: #ffffff;
+    color: #6e5786;
+}
+
+body.light-theme .codex-filter option,
+body.light-theme .codex-sort option {
+    background: #ffffff;
+    color: #281638;
+}
+
+body.light-theme .codex-item {
+    background: rgba(255, 255, 255, 0.94);
+
+    box-shadow:
+        0 3px 12px rgba(39, 16, 65, 0.04);
+}
+
+body.light-theme .codex-item:hover {
+    background: #ffffff;
+}
+
+body.light-theme .codex-item.is-locked {
+    background: #f2edf7;
+}
+
+body.light-theme .codex-item.is-locked .codex-item-amount {
+    color: #a093af;
+}
+
+body.light-theme .codex-item.is-locked .codex-item-description {
+    color: #9582a8;
+}
+
+body.light-theme .codex-item.is-collected.rarity-ultimate {
+    background:
+        radial-gradient(
+            ellipse at top right,
+            rgba(168, 85, 247, 0.09),
+            transparent 65%
+        ),
+        #ffffff;
+}
+
+body.light-theme .codex-empty {
+    background: rgba(168, 85, 247, 0.025);
+}
+
+
+/* =========================================================
+   17. TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .codex-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .codex-item {
+        min-height: 150px;
+        padding: 12px;
+    }
+
+    .codex-item-amount {
+        font-size: 20px;
+    }
+}
+
+
+/* =========================================================
+   18. MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .codex-interface {
+        gap: 18px;
+    }
+
+    .codex-overview {
+        padding: 17px;
+    }
+
+    .codex-overview-label {
+        font-size: 9px;
+        letter-spacing: 1.2px;
+    }
+
+    .codex-progress-text {
+        font-size: 14px;
+    }
+
+    .codex-filter-wrapper {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .codex-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+    .codex-item {
+        min-height: 145px;
+        padding: 12px 11px;
+    }
+
+    .codex-item-amount {
+        font-size: 20px;
+    }
+
+    .codex-item-description {
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   19. SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 390px) {
+    .codex-overview {
+        padding: 14px;
+    }
+
+    .codex-overview-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .codex-filter-wrapper {
+        grid-template-columns:
+            minmax(0, 1fr);
+    }
+
+    .codex-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+    }
+
+    .codex-item {
+        min-height: 136px;
+        padding: 10px 9px;
+        gap: 11px;
+    }
+
+    .codex-item-symbol {
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
+    }
+
+    .codex-item-status {
+        padding: 3px 4px;
+        font-size: 7px;
+        letter-spacing: 0.2px;
+    }
+
+    .codex-item-amount {
+        font-size: 17px;
+    }
+
+    .codex-item-rarity {
+        font-size: 9px;
+    }
+
+    .codex-item-description {
+        font-size: 9px;
+    }
+
+    .codex-footer {
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   20. ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .codex-interface,
+    .codex-item,
+    .codex-progress-fill,
+    .codex-search,
+    .codex-filter,
+    .codex-sort {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .codex-item:hover {
+        transform: none;
+    }
+}
+```
