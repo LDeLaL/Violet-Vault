@@ -1,0 +1,1820 @@
+/* =========================================================
+   Violet Vault - Statistics Styles
+   File: statistics.css
+   Theme: Dark / Violet Neon
+   Compatible with: statistics.js
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. Main Layout
+   --------------------------------------------------------- */
+
+#statistics-content {
+    width: 100%;
+    min-width: 0;
+    color: #eee7ff;
+}
+
+.statistics-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+
+    width: 100%;
+    min-width: 0;
+
+    animation: statisticsFadeIn 0.35s ease;
+}
+
+@keyframes statisticsFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.statistics-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-section * {
+    box-sizing: border-box;
+}
+
+.statistics-section button,
+.statistics-section input,
+.statistics-section select {
+    font-family: inherit;
+}
+
+
+/* ---------------------------------------------------------
+   2. Section Headers
+   --------------------------------------------------------- */
+
+.statistics-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-section-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.statistics-section-eyebrow {
+    color: #ad87ed;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.5;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.statistics-section-title {
+    margin: 0;
+
+    color: #f1e9ff;
+    font-size: 19px;
+    font-weight: 850;
+    line-height: 1.35;
+    letter-spacing: -0.55px;
+    overflow-wrap: anywhere;
+}
+
+.statistics-section-description {
+    margin: 2px 0 0;
+
+    color: #9083a8;
+    font-size: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   3. General Card Grid
+   --------------------------------------------------------- */
+
+.statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-overview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.statistics-draw-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.statistics-activity-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+
+/* ---------------------------------------------------------
+   4. Base Cards
+   --------------------------------------------------------- */
+
+.statistics-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    min-width: 0;
+    min-height: 125px;
+    padding: 19px 17px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(35, 25, 54, 0.94),
+            rgba(18, 14, 30, 0.98)
+        );
+
+    border: 1px solid rgba(175, 129, 255, 0.16);
+    border-radius: 15px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 5px 18px rgba(0, 0, 0, 0.13);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.statistics-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(192, 148, 255, 0.68),
+        transparent
+    );
+
+    opacity: 0.55;
+}
+
+.statistics-card:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(191, 145, 255, 0.34);
+
+    box-shadow:
+        0 9px 25px rgba(0, 0, 0, 0.2),
+        0 0 18px rgba(150, 89, 255, 0.055);
+}
+
+.statistics-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.statistics-card-label {
+    display: block;
+
+    color: #a99bbb;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.statistics-card-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 31px;
+    height: 31px;
+
+    color: #d4b6ff;
+    font-size: 17px;
+
+    background: rgba(163, 104, 255, 0.12);
+    border: 1px solid rgba(179, 129, 255, 0.15);
+    border-radius: 10px;
+}
+
+.statistics-card-value {
+    display: block;
+
+    color: #f0e8ff;
+    font-size: clamp(18px, 2vw, 25px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.6px;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-variant-numeric: tabular-nums;
+
+    text-shadow: 0 0 17px rgba(174, 119, 255, 0.1);
+}
+
+.statistics-card-note {
+    display: block;
+    margin-top: auto;
+
+    color: #817492;
+    font-size: 10px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   5. Card Accent Colors
+   --------------------------------------------------------- */
+
+.statistics-card.purple {
+    border-color: rgba(183, 133, 255, 0.19);
+}
+
+.statistics-card.purple .statistics-card-value {
+    color: #d0aaff;
+}
+
+.statistics-card.purple .statistics-card-icon {
+    color: #d3b1ff;
+    background: rgba(171, 111, 255, 0.12);
+}
+
+.statistics-card.green .statistics-card-value {
+    color: #8ae6b7;
+}
+
+.statistics-card.green .statistics-card-icon {
+    color: #8ae6b7;
+    background: rgba(91, 218, 159, 0.09);
+    border-color: rgba(91, 218, 159, 0.16);
+}
+
+.statistics-card.pink .statistics-card-value {
+    color: #ff9dc9;
+}
+
+.statistics-card.pink .statistics-card-icon {
+    color: #ff9dc9;
+    background: rgba(255, 120, 184, 0.09);
+    border-color: rgba(255, 120, 184, 0.16);
+}
+
+.statistics-card.blue .statistics-card-value {
+    color: #93c7ff;
+}
+
+.statistics-card.blue .statistics-card-icon {
+    color: #93c7ff;
+    background: rgba(98, 166, 255, 0.09);
+    border-color: rgba(98, 166, 255, 0.16);
+}
+
+.statistics-card.gold .statistics-card-value {
+    color: #ffda8a;
+}
+
+.statistics-card.gold .statistics-card-icon {
+    color: #ffda8a;
+    background: rgba(255, 203, 105, 0.08);
+    border-color: rgba(255, 203, 105, 0.16);
+}
+
+
+/* ---------------------------------------------------------
+   6. Financial Inline Metrics
+   --------------------------------------------------------- */
+
+.statistics-inline-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+
+    overflow: hidden;
+
+    background: rgba(164, 116, 234, 0.12);
+    border: 1px solid rgba(168, 120, 237, 0.13);
+    border-radius: 12px;
+}
+
+.statistics-inline-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    min-width: 0;
+    padding: 15px 17px;
+
+    background: rgba(20, 15, 32, 0.92);
+}
+
+.statistics-inline-metric span {
+    color: #9385a9;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.statistics-inline-metric strong {
+    color: #ded0f7;
+    font-size: 15px;
+    font-weight: 850;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------
+   7. General Panels
+   --------------------------------------------------------- */
+
+.statistics-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    min-width: 0;
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(29, 22, 44, 0.9),
+            rgba(17, 13, 27, 0.97)
+        );
+
+    border: 1px solid rgba(171, 125, 247, 0.16);
+    border-radius: 16px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.018),
+        0 5px 20px rgba(0, 0, 0, 0.11);
+}
+
+.statistics-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-panel-heading h4 {
+    margin: 0;
+
+    color: #e7dcfa;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.statistics-panel-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 25px;
+    padding: 5px 10px;
+
+    color: #c6a7ff;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+
+    background: rgba(158, 99, 255, 0.09);
+    border: 1px solid rgba(175, 126, 255, 0.16);
+    border-radius: 999px;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------
+   8. Two-Column Layout
+   --------------------------------------------------------- */
+
+.statistics-two-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 14px;
+
+    min-width: 0;
+}
+
+.statistics-two-column > * {
+    min-width: 0;
+}
+
+.statistics-two-column .statistics-panel {
+    height: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   9. Distribution Bars
+   --------------------------------------------------------- */
+
+.statistics-distribution-panel {
+    gap: 23px;
+}
+
+.statistics-distribution-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-distribution-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: #c9bddc;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.statistics-distribution-label > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.statistics-distribution-label strong {
+    color: #eee5ff;
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-distribution-label strong small {
+    color: #857798;
+    font-size: 9px;
+    font-weight: 550;
+}
+
+.statistics-distribution-track {
+    width: 100%;
+    height: 9px;
+
+    overflow: hidden;
+
+    background: rgba(4, 3, 9, 0.58);
+    border: 1px solid rgba(169, 126, 234, 0.07);
+    border-radius: 999px;
+}
+
+.statistics-distribution-fill {
+    height: 100%;
+    min-width: 0;
+
+    border-radius: inherit;
+
+    box-shadow: 0 0 12px rgba(172, 123, 255, 0.15);
+
+    transition: width 0.45s ease;
+}
+
+.statistics-distribution-percent {
+    margin-top: -5px;
+
+    color: #8f81a5;
+    font-size: 10px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------
+   10. Number Insights
+   --------------------------------------------------------- */
+
+.statistics-number-insight {
+    gap: 20px;
+}
+
+.statistics-pair {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-pair-item,
+.statistics-pair > .statistics-pair-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 13px 12px;
+
+    background: rgba(137, 89, 217, 0.055);
+    border: 1px solid rgba(169, 123, 239, 0.12);
+    border-radius: 12px;
+}
+
+.statistics-pair-item > div,
+.statistics-pair > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.statistics-pair-item > div strong,
+.statistics-pair > div strong {
+    color: #e9deff;
+    font-size: 16px;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-pair-item > div small,
+.statistics-pair > div small {
+    color: #8e80a3;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.statistics-pair-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+    width: 33px;
+    height: 33px;
+
+    color: #d2b0ff;
+    font-size: 13px;
+    font-weight: 900;
+
+    background: rgba(171, 113, 255, 0.12);
+    border-radius: 10px;
+}
+
+.statistics-pair-symbol.odd {
+    color: #d5b0ff;
+    background: rgba(171, 113, 255, 0.12);
+}
+
+.statistics-pair-symbol.even {
+    color: #9bcaff;
+    background: rgba(95, 167, 255, 0.11);
+}
+
+.statistics-small-note {
+    margin: 0;
+
+    color: #81738f;
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   11. Number Classification Rows
+   --------------------------------------------------------- */
+
+.statistics-number-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-number-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-width: 0;
+    padding: 12px 0;
+
+    border-bottom: 1px solid rgba(174, 131, 237, 0.09);
+}
+
+.statistics-number-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.statistics-number-dot {
+    display: block;
+    flex: 0 0 auto;
+
+    width: 9px;
+    height: 9px;
+
+    background: var(--statistics-accent, #b78aff);
+    border-radius: 50%;
+
+    box-shadow: 0 0 11px var(--statistics-accent, #b78aff);
+}
+
+.statistics-number-row-main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 0;
+}
+
+.statistics-number-row-main strong {
+    color: #ded2f1;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.statistics-number-row-main small {
+    color: #81758f;
+    font-size: 9px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.statistics-number-row-value {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-number-row-value strong {
+    color: #e5d9fa;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.statistics-number-row-value small {
+    color: #8b7b9f;
+    font-size: 9px;
+}
+
+
+/* ---------------------------------------------------------
+   12. Digit Frequency Chart
+   --------------------------------------------------------- */
+
+.statistics-digit-panel {
+    gap: 24px;
+}
+
+.statistics-digit-grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 9px;
+
+    min-width: 0;
+}
+
+.statistics-digit-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+    padding: 11px 4px 12px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(109, 69, 175, 0.07),
+            rgba(22, 16, 35, 0.48)
+        );
+
+    border: 1px solid rgba(170, 123, 238, 0.11);
+    border-radius: 11px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.statistics-digit-card:hover {
+    transform: translateY(-2px);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(142, 88, 224, 0.12),
+            rgba(27, 19, 44, 0.7)
+        );
+
+    border-color: rgba(177, 127, 255, 0.3);
+}
+
+.statistics-digit-number {
+    color: #dcc5ff;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.3;
+
+    text-shadow: 0 0 10px rgba(176, 119, 255, 0.14);
+}
+
+.statistics-digit-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    width: 100%;
+    height: 100px;
+    padding: 0 5px;
+
+    overflow: hidden;
+
+    background: rgba(5, 4, 10, 0.4);
+    border-radius: 6px;
+}
+
+.statistics-digit-bar {
+    width: 100%;
+    min-height: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #d5b5ff 0%,
+            #a56aff 43%,
+            #7040bb 100%
+        );
+
+    border-radius: 5px 5px 2px 2px;
+
+    box-shadow: 0 0 12px rgba(157, 91, 255, 0.15);
+
+    transition: height 0.35s ease;
+}
+
+.statistics-digit-count {
+    color: #e5d8fa;
+    font-size: 11px;
+    font-weight: 850;
+    line-height: 1.3;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-digit-percent {
+    color: #8b7a9f;
+    font-size: 9px;
+    line-height: 1.3;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------
+   13. Rarity Distribution
+   --------------------------------------------------------- */
+
+.statistics-rarity-panel {
+    gap: 20px;
+}
+
+.statistics-rarity-row {
+    display: grid;
+    grid-template-columns: minmax(95px, 0.85fr) minmax(80px, 2fr) minmax(65px, 0.6fr);
+    align-items: center;
+    gap: 15px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-rarity-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+}
+
+.statistics-rarity-symbol {
+    flex: 0 0 auto;
+
+    font-size: 15px;
+    line-height: 1.3;
+    text-shadow: 0 0 12px currentColor;
+}
+
+.statistics-rarity-name {
+    color: #d5c8e9;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.statistics-bar-track {
+    position: relative;
+
+    width: 100%;
+    height: 9px;
+
+    overflow: hidden;
+
+    background: rgba(4, 3, 9, 0.56);
+    border: 1px solid rgba(167, 126, 230, 0.07);
+    border-radius: 999px;
+}
+
+.statistics-bar-fill {
+    height: 100%;
+    min-width: 0;
+
+    border-radius: inherit;
+
+    transition: width 0.45s ease;
+}
+
+.statistics-bar-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-bar-value strong {
+    color: #e9e0f7;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.statistics-bar-value small {
+    color: #857798;
+    font-size: 9px;
+}
+
+
+/* ---------------------------------------------------------
+   14. Reward Range Chart
+   --------------------------------------------------------- */
+
+.statistics-range-panel {
+    gap: 22px;
+}
+
+.statistics-range-grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 8px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-range-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+    padding: 10px 3px 12px;
+
+    background: rgba(116, 73, 180, 0.045);
+    border: 1px solid rgba(168, 121, 239, 0.1);
+    border-radius: 10px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.statistics-range-item:hover {
+    background: rgba(142, 88, 224, 0.1);
+    border-color: rgba(181, 129, 255, 0.28);
+}
+
+.statistics-range-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    width: 100%;
+    height: 105px;
+    padding: 0 5px;
+
+    overflow: hidden;
+
+    background: rgba(5, 4, 10, 0.39);
+    border-radius: 5px;
+}
+
+.statistics-range-bar {
+    width: 100%;
+    min-height: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #cba6ff 0%,
+            #a373ff 45%,
+            #7040b4 100%
+        );
+
+    border-radius: 5px 5px 2px 2px;
+
+    box-shadow: 0 0 12px rgba(155, 95, 255, 0.13);
+
+    transition: height 0.35s ease;
+}
+
+.statistics-range-count {
+    color: #e2d5f4;
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-range-label {
+    color: #9483a9;
+    font-size: 9px;
+    line-height: 1.3;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   15. Recent Draws
+   --------------------------------------------------------- */
+
+.statistics-recent-panel {
+    gap: 12px;
+}
+
+.statistics-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.statistics-recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+
+    min-width: 0;
+    padding: 15px 2px;
+
+    border-bottom: 1px solid rgba(170, 126, 232, 0.09);
+}
+
+.statistics-recent-item:last-child {
+    border-bottom: none;
+}
+
+.statistics-recent-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.statistics-recent-index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+    width: 31px;
+    height: 31px;
+
+    color: #bfa1ed;
+    font-size: 10px;
+    font-weight: 850;
+
+    background: rgba(149, 91, 236, 0.1);
+    border: 1px solid rgba(169, 117, 240, 0.14);
+    border-radius: 10px;
+}
+
+.statistics-recent-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.statistics-recent-main strong {
+    color: #eadfff;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.3;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.statistics-recent-main small {
+    color: #8d7d9f;
+    font-size: 10px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.statistics-recent-chart {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    flex: 0 1 140px;
+    min-width: 45px;
+    height: 8px;
+
+    overflow: hidden;
+
+    background: rgba(5, 4, 10, 0.5);
+    border-radius: 999px;
+}
+
+.statistics-recent-bar {
+    height: 100%;
+    min-width: 2px;
+
+    border-radius: inherit;
+
+    box-shadow: 0 0 10px rgba(178, 130, 255, 0.12);
+}
+
+
+/* ---------------------------------------------------------
+   16. Bank and Stock Activity
+   --------------------------------------------------------- */
+
+.statistics-activity-card {
+    min-height: 112px;
+    padding: 16px 15px;
+    gap: 10px;
+}
+
+.statistics-activity-card .statistics-card-label {
+    min-height: 17px;
+}
+
+.statistics-activity-card .statistics-card-value {
+    font-size: clamp(16px, 1.65vw, 22px);
+}
+
+.statistics-activity-card .statistics-card-note {
+    font-size: 9px;
+}
+
+.statistics-insight {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    min-width: 0;
+    padding: 16px 17px;
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(137, 82, 221, 0.08),
+            rgba(49, 31, 73, 0.11)
+        );
+
+    border: 1px solid rgba(168, 115, 239, 0.15);
+    border-radius: 13px;
+}
+
+.statistics-insight-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+    width: 31px;
+    height: 31px;
+
+    color: #d3b5ff;
+    font-size: 17px;
+
+    background: rgba(160, 100, 244, 0.13);
+    border-radius: 10px;
+}
+
+.statistics-insight > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.statistics-insight strong {
+    color: #e9ddfc;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.5;
+}
+
+.statistics-insight p {
+    margin: 0;
+
+    color: #9889aa;
+    font-size: 11px;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+}
+
+.statistics-insight p b {
+    color: #d7bdff;
+    font-weight: 850;
+}
+
+.statistics-bank-insight .statistics-insight-icon {
+    color: #9ecaff;
+    background: rgba(87, 156, 248, 0.1);
+}
+
+.statistics-stock-insight .statistics-insight-icon {
+    color: #94e5bd;
+    background: rgba(86, 214, 151, 0.1);
+}
+
+.statistics-positive {
+    color: #8de7b7 !important;
+}
+
+.statistics-negative {
+    color: #ff9dbb !important;
+}
+
+
+/* ---------------------------------------------------------
+   17. No Data and Empty States
+   --------------------------------------------------------- */
+
+.statistics-no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 110px;
+    padding: 20px 16px;
+
+    background: rgba(10, 8, 17, 0.32);
+    border: 1px dashed rgba(172, 128, 238, 0.17);
+    border-radius: 12px;
+}
+
+.statistics-no-data-icon {
+    color: #a98bd5;
+    font-size: 25px;
+    line-height: 1;
+
+    text-shadow: 0 0 14px rgba(169, 123, 255, 0.2);
+}
+
+.statistics-no-data p {
+    max-width: 400px;
+    margin: 0;
+
+    color: #9182a5;
+    font-size: 11px;
+    line-height: 1.8;
+    text-align: center;
+}
+
+.statistics-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-height: 260px;
+    padding: 30px 20px;
+
+    color: #9585aa;
+    text-align: center;
+
+    background: rgba(23, 17, 37, 0.75);
+    border: 1px dashed rgba(172, 128, 238, 0.25);
+    border-radius: 16px;
+}
+
+.statistics-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 53px;
+    height: 53px;
+
+    color: #d1b3ff;
+    font-size: 27px;
+
+    background: rgba(162, 103, 255, 0.12);
+    border: 1px solid rgba(181, 132, 255, 0.19);
+    border-radius: 16px;
+}
+
+.statistics-empty h3 {
+    margin: 0;
+
+    color: #e7dafb;
+    font-size: 16px;
+    font-weight: 850;
+}
+
+.statistics-empty p {
+    max-width: 380px;
+    margin: 0;
+
+    color: #9384a7;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+
+/* ---------------------------------------------------------
+   18. Data Information Note
+   --------------------------------------------------------- */
+
+.statistics-data-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    min-width: 0;
+    padding: 14px 15px;
+
+    background: rgba(121, 86, 174, 0.045);
+    border: 1px solid rgba(155, 118, 203, 0.11);
+    border-radius: 11px;
+}
+
+.statistics-data-note-icon {
+    flex: 0 0 auto;
+
+    color: #a78acb;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.statistics-data-note p {
+    margin: 0;
+
+    color: #82748f;
+    font-size: 10px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   19. Responsive Layout - Medium Screens
+   --------------------------------------------------------- */
+
+@media (max-width: 1050px) {
+    .statistics-grid,
+    .statistics-overview-grid,
+    .statistics-draw-grid,
+    .statistics-activity-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .statistics-digit-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .statistics-range-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .statistics-two-column {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .statistics-rarity-row {
+        grid-template-columns: minmax(95px, 0.8fr) minmax(100px, 2fr) minmax(65px, 0.6fr);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   20. Responsive Layout - Tablets
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+    .statistics-dashboard {
+        gap: 25px;
+    }
+
+    .statistics-section {
+        gap: 13px;
+    }
+
+    .statistics-section-title {
+        font-size: 17px;
+    }
+
+    .statistics-section-description {
+        font-size: 10px;
+    }
+
+    .statistics-card {
+        min-height: 115px;
+        padding: 16px 14px;
+        border-radius: 13px;
+    }
+
+    .statistics-card-value {
+        font-size: clamp(17px, 4vw, 23px);
+    }
+
+    .statistics-panel {
+        gap: 18px;
+        padding: 17px;
+        border-radius: 14px;
+    }
+
+    .statistics-inline-metric {
+        padding: 13px 12px;
+    }
+
+    .statistics-inline-metric strong {
+        font-size: 13px;
+    }
+
+    .statistics-digit-grid {
+        gap: 7px;
+    }
+
+    .statistics-digit-chart {
+        height: 85px;
+    }
+
+    .statistics-range-grid {
+        gap: 7px;
+    }
+
+    .statistics-range-chart {
+        height: 85px;
+    }
+
+    .statistics-rarity-row {
+        grid-template-columns: minmax(78px, 0.8fr) minmax(50px, 1.4fr) minmax(55px, 0.5fr);
+        gap: 9px;
+    }
+
+    .statistics-rarity-name {
+        font-size: 9px;
+    }
+
+    .statistics-bar-value strong {
+        font-size: 10px;
+    }
+
+    .statistics-bar-value small {
+        font-size: 8px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   21. Responsive Layout - Small Mobile Screens
+   --------------------------------------------------------- */
+
+@media (max-width: 480px) {
+    .statistics-dashboard {
+        gap: 22px;
+    }
+
+    .statistics-section-header {
+        align-items: flex-start;
+    }
+
+    .statistics-section-eyebrow {
+        font-size: 8px;
+        letter-spacing: 1.5px;
+    }
+
+    .statistics-section-title {
+        font-size: 16px;
+    }
+
+    .statistics-grid,
+    .statistics-overview-grid,
+    .statistics-draw-grid,
+    .statistics-activity-grid {
+        gap: 9px;
+    }
+
+    .statistics-card {
+        min-height: 107px;
+        padding: 13px 11px;
+        gap: 10px;
+    }
+
+    .statistics-card-top {
+        gap: 5px;
+    }
+
+    .statistics-card-label {
+        font-size: 10px;
+    }
+
+    .statistics-card-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    .statistics-card-value {
+        font-size: clamp(15px, 4.4vw, 20px);
+        letter-spacing: -0.4px;
+    }
+
+    .statistics-card-note {
+        font-size: 9px;
+    }
+
+    .statistics-inline-metrics {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .statistics-inline-metric {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+
+    .statistics-inline-metric strong {
+        text-align: right;
+        font-size: 13px;
+    }
+
+    .statistics-panel {
+        padding: 14px;
+        gap: 17px;
+        border-radius: 12px;
+    }
+
+    .statistics-panel-heading h4 {
+        font-size: 12px;
+    }
+
+    .statistics-panel-tag {
+        min-height: 23px;
+        padding: 4px 8px;
+        font-size: 9px;
+    }
+
+    .statistics-digit-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .statistics-digit-card {
+        gap: 7px;
+        padding: 9px 4px 10px;
+    }
+
+    .statistics-digit-number {
+        font-size: 14px;
+    }
+
+    .statistics-digit-chart {
+        height: 65px;
+        padding: 0 4px;
+    }
+
+    .statistics-digit-count {
+        font-size: 10px;
+    }
+
+    .statistics-digit-percent {
+        font-size: 8px;
+    }
+
+    .statistics-range-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .statistics-range-item {
+        gap: 7px;
+        padding: 8px 3px 9px;
+    }
+
+    .statistics-range-chart {
+        height: 65px;
+        padding: 0 4px;
+    }
+
+    .statistics-range-count {
+        font-size: 10px;
+    }
+
+    .statistics-range-label {
+        font-size: 8px;
+    }
+
+    .statistics-rarity-row {
+        grid-template-columns: minmax(68px, 0.9fr) minmax(35px, 1fr) minmax(48px, 0.55fr);
+        gap: 7px;
+    }
+
+    .statistics-rarity-label {
+        gap: 6px;
+    }
+
+    .statistics-rarity-symbol {
+        font-size: 13px;
+    }
+
+    .statistics-rarity-name {
+        font-size: 8px;
+    }
+
+    .statistics-bar-track {
+        height: 7px;
+    }
+
+    .statistics-bar-value {
+        gap: 3px;
+    }
+
+    .statistics-bar-value strong {
+        font-size: 9px;
+    }
+
+    .statistics-bar-value small {
+        font-size: 8px;
+    }
+
+    .statistics-distribution-row {
+        gap: 8px;
+    }
+
+    .statistics-distribution-label {
+        font-size: 10px;
+    }
+
+    .statistics-distribution-track {
+        height: 8px;
+    }
+
+    .statistics-distribution-percent {
+        font-size: 9px;
+    }
+
+    .statistics-pair {
+        gap: 7px;
+    }
+
+    .statistics-pair-item,
+    .statistics-pair > .statistics-pair-item {
+        gap: 7px;
+        padding: 10px 8px;
+    }
+
+    .statistics-pair-symbol {
+        width: 27px;
+        height: 27px;
+        font-size: 11px;
+    }
+
+    .statistics-pair-item > div strong,
+    .statistics-pair > div strong {
+        font-size: 14px;
+    }
+
+    .statistics-pair-item > div small,
+    .statistics-pair > div small {
+        font-size: 9px;
+    }
+
+    .statistics-number-row {
+        gap: 8px;
+    }
+
+    .statistics-number-row-main small {
+        font-size: 8px;
+    }
+
+    .statistics-number-row-value strong {
+        font-size: 10px;
+    }
+
+    .statistics-number-row-value small {
+        font-size: 8px;
+    }
+
+    .statistics-recent-item {
+        gap: 9px;
+        padding: 13px 0;
+    }
+
+    .statistics-recent-info {
+        gap: 8px;
+    }
+
+    .statistics-recent-index {
+        width: 27px;
+        height: 27px;
+        font-size: 9px;
+    }
+
+    .statistics-recent-main strong {
+        font-size: 12px;
+    }
+
+    .statistics-recent-main small {
+        font-size: 9px;
+    }
+
+    .statistics-recent-chart {
+        flex-basis: 65px;
+    }
+
+    .statistics-activity-card {
+        min-height: 98px;
+    }
+
+    .statistics-insight {
+        gap: 10px;
+        padding: 13px;
+    }
+
+    .statistics-insight-icon {
+        width: 27px;
+        height: 27px;
+        font-size: 14px;
+    }
+
+    .statistics-insight strong {
+        font-size: 11px;
+    }
+
+    .statistics-insight p {
+        font-size: 10px;
+    }
+
+    .statistics-data-note {
+        padding: 12px;
+    }
+
+    .statistics-data-note p {
+        font-size: 9px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   22. Very Narrow Screens
+   --------------------------------------------------------- */
+
+@media (max-width: 340px) {
+    .statistics-grid,
+    .statistics-overview-grid,
+    .statistics-draw-grid,
+    .statistics-activity-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .statistics-card {
+        min-height: 95px;
+    }
+
+    .statistics-card-value {
+        font-size: 20px;
+    }
+
+    .statistics-inline-metric {
+        padding: 11px;
+    }
+
+    .statistics-rarity-row {
+        grid-template-columns: 67px minmax(25px, 1fr) 43px;
+        gap: 5px;
+    }
+
+    .statistics-rarity-name {
+        font-size: 8px;
+    }
+
+    .statistics-bar-value strong {
+        font-size: 8px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   23. Accessibility and Reduced Motion
+   --------------------------------------------------------- */
+
+#statistics-content *:focus-visible {
+    outline: 2px solid rgba(190, 145, 255, 0.85);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .statistics-dashboard,
+    .statistics-card,
+    .statistics-digit-card,
+    .statistics-range-item,
+    .statistics-digit-bar,
+    .statistics-range-bar,
+    .statistics-bar-fill,
+    .statistics-distribution-fill {
+        animation: none !important;
+        transition: none !important;
+    }
+}
