@@ -1,0 +1,1428 @@
+/* =========================================================
+   VIOLET VAULT
+   Stock Market Design — stock.css
+   Violet Neon Trading Interface
+   ========================================================= */
+
+
+/* =========================================================
+   1. STOCK VARIABLES
+   ========================================================= */
+
+:root {
+    --stock-purple: #a855f7;
+    --stock-purple-light: #c084fc;
+    --stock-purple-bright: #e9d5ff;
+
+    --stock-bg: rgba(12, 7, 20, 0.92);
+    --stock-card-bg: rgba(22, 13, 35, 0.92);
+
+    --stock-text: #f5efff;
+    --stock-text-secondary: #b9a8d1;
+    --stock-text-muted: #79688f;
+
+    --stock-border: rgba(168, 85, 247, 0.20);
+    --stock-border-bright: rgba(192, 132, 252, 0.48);
+
+    --stock-positive: #70f0b0;
+    --stock-negative: #ff7fa9;
+    --stock-neutral: #a99bbd;
+
+    --stock-radius: 13px;
+
+    --stock-glow:
+        0 0 18px rgba(168, 85, 247, 0.09);
+}
+
+
+/* =========================================================
+   2. MAIN STOCK PANEL
+   ========================================================= */
+
+#stock-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+#stock-panel > * {
+    position: relative;
+}
+
+#stock-panel::before {
+    content: "";
+
+    position: absolute;
+    top: -110px;
+    right: -100px;
+
+    width: 240px;
+    height: 240px;
+
+    border-radius: 50%;
+
+    background: rgba(126, 34, 206, 0.09);
+    filter: blur(60px);
+
+    pointer-events: none;
+}
+
+#stock-panel .content-panel-heading {
+    margin-bottom: 24px;
+}
+
+#stock-panel .content-panel-heading h2 {
+    color: var(--stock-text);
+    letter-spacing: -0.6px;
+}
+
+#stock-panel .eyebrow {
+    color: var(--stock-purple-light);
+}
+
+
+/* =========================================================
+   3. STOCK MARKET STATUS
+   ========================================================= */
+
+#stock-panel .market-status {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 7px 10px;
+
+    border: 1px solid rgba(112, 240, 176, 0.2);
+    border-radius: 7px;
+
+    background: rgba(112, 240, 176, 0.045);
+
+    color: var(--stock-positive);
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+#stock-panel .market-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--stock-positive);
+
+    box-shadow:
+        0 0 9px rgba(112, 240, 176, 0.55);
+}
+
+
+/* =========================================================
+   4. PORTFOLIO SUMMARY
+   ========================================================= */
+
+#stock-panel .stock-summary {
+    margin-bottom: 25px;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#stock-panel .stock-summary > div {
+    position: relative;
+
+    min-width: 0;
+    min-height: 110px;
+
+    padding: 19px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--stock-border);
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(168, 85, 247, 0.10),
+            transparent 65%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(26, 15, 42, 0.95),
+            rgba(13, 8, 22, 0.97)
+        );
+
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#stock-panel .stock-summary > div:hover {
+    border-color: var(--stock-border-bright);
+
+    box-shadow: var(--stock-glow);
+}
+
+#stock-panel .stock-summary p {
+    margin: 0;
+
+    color: var(--stock-text-muted);
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#stock-panel .stock-summary strong {
+    color: var(--stock-purple-bright);
+
+    font-size: clamp(20px, 2.5vw, 27px);
+    font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   5. SECTION HEADINGS
+   ========================================================= */
+
+#stock-panel .subsection-title {
+    margin: 28px 0 15px;
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+
+    color: var(--stock-text);
+
+    font-size: 15px;
+    font-weight: 900;
+}
+
+#stock-panel .subsection-title::before {
+    content: "";
+
+    display: inline-block;
+
+    width: 4px;
+    height: 15px;
+
+    margin-right: 9px;
+
+    vertical-align: -2px;
+
+    border-radius: 4px;
+
+    background: linear-gradient(
+        180deg,
+        #d8b4fe,
+        #7e22ce
+    );
+
+    box-shadow:
+        0 0 9px rgba(168, 85, 247, 0.3);
+}
+
+
+/* =========================================================
+   6. STOCK MARKET LIST
+   ========================================================= */
+
+#stock-panel .stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+/* =========================================================
+   7. STOCK COMPANY CARD
+   ========================================================= */
+
+#stock-panel .stock-card {
+    --stock-color: #a855f7;
+
+    position: relative;
+
+    min-width: 0;
+    padding: 19px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--stock-border);
+    border-radius: var(--stock-radius);
+
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            color-mix(
+                in srgb,
+                var(--stock-color) 7%,
+                transparent
+            ),
+            transparent 60%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(25, 15, 39, 0.96),
+            rgba(12, 8, 20, 0.98)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.018),
+        0 5px 20px rgba(0, 0, 0, 0.10);
+
+    transition:
+        border-color 180ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        background 180ms ease;
+}
+
+#stock-panel .stock-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--stock-color),
+        transparent
+    );
+
+    opacity: 0.65;
+}
+
+#stock-panel .stock-card:hover {
+    border-color: color-mix(
+        in srgb,
+        var(--stock-color) 42%,
+        transparent
+    );
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.17),
+        0 0 20px color-mix(
+            in srgb,
+            var(--stock-color) 7%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   8. COMPANY HEADER
+   ========================================================= */
+
+#stock-panel .stock-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+#stock-panel .stock-company-icon {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--stock-color) 36%,
+        transparent
+    );
+
+    border-radius: 12px;
+
+    background: color-mix(
+        in srgb,
+        var(--stock-color) 11%,
+        transparent
+    );
+
+    color: var(--stock-color);
+
+    font-size: 21px;
+    font-weight: 900;
+
+    text-shadow:
+        0 0 12px color-mix(
+            in srgb,
+            var(--stock-color) 38%,
+            transparent
+        );
+
+    box-shadow:
+        inset 0 0 14px color-mix(
+            in srgb,
+            var(--stock-color) 5%,
+            transparent
+        );
+}
+
+#stock-panel .stock-company-info {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#stock-panel .stock-company-name {
+    color: var(--stock-text);
+
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+#stock-panel .stock-company-symbol {
+    display: inline-block;
+
+    color: var(--stock-text-muted);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   9. PRICE CHANGE BADGES
+   ========================================================= */
+
+#stock-panel .stock-change {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 58px;
+    padding: 6px 8px;
+
+    border: 1px solid rgba(169, 155, 189, 0.18);
+    border-radius: 7px;
+
+    background: rgba(169, 155, 189, 0.045);
+
+    color: var(--stock-neutral);
+
+    font-size: 10px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+#stock-panel .stock-change-up {
+    border-color: rgba(112, 240, 176, 0.24);
+
+    background: rgba(112, 240, 176, 0.065);
+
+    color: var(--stock-positive);
+}
+
+#stock-panel .stock-change-down {
+    border-color: rgba(255, 127, 169, 0.24);
+
+    background: rgba(255, 127, 169, 0.065);
+
+    color: var(--stock-negative);
+}
+
+#stock-panel .stock-change-neutral {
+    color: var(--stock-neutral);
+}
+
+
+/* =========================================================
+   10. COMPANY DESCRIPTION
+   ========================================================= */
+
+#stock-panel .stock-description {
+    margin: -3px 0 0;
+
+    color: var(--stock-text-muted);
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   11. CURRENT STOCK PRICE
+   ========================================================= */
+
+#stock-panel .stock-price-row {
+    padding: 15px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    border-top: 1px solid rgba(168, 85, 247, 0.10);
+    border-bottom: 1px solid rgba(168, 85, 247, 0.10);
+}
+
+#stock-panel .stock-price-row > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#stock-panel .stock-price-label,
+#stock-panel .stock-price-change > span {
+    color: var(--stock-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#stock-panel .stock-price {
+    color: var(--stock-purple-bright);
+
+    font-size: clamp(22px, 3vw, 29px);
+    font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: -0.6px;
+
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+
+    text-shadow:
+        0 0 13px rgba(168, 85, 247, 0.13);
+}
+
+#stock-panel .stock-price-change {
+    align-items: flex-end;
+    text-align: right;
+}
+
+#stock-panel .stock-price-change strong {
+    font-size: 11px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   12. MINI PRICE CHART
+   ========================================================= */
+
+#stock-panel .stock-mini-chart {
+    position: relative;
+
+    width: 100%;
+    height: 63px;
+    min-width: 0;
+
+    padding: 5px 2px;
+
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(168, 85, 247, 0.09);
+    border-radius: 8px;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 19px,
+            rgba(168, 85, 247, 0.065) 20px
+        ),
+        rgba(8, 5, 14, 0.42);
+}
+
+#stock-panel .stock-chart-bar {
+    flex: 1 1 0;
+
+    min-width: 2px;
+    max-width: 20px;
+    min-height: 3px;
+
+    display: block;
+
+    border-radius: 3px 3px 0 0;
+
+    background: linear-gradient(
+        180deg,
+        color-mix(
+            in srgb,
+            var(--stock-color, #a855f7) 90%,
+            white
+        ),
+        var(--stock-color, #a855f7)
+    );
+
+    box-shadow:
+        0 0 6px color-mix(
+            in srgb,
+            var(--stock-color, #a855f7) 24%,
+            transparent
+        );
+
+    opacity: 0.75;
+
+    transition:
+        height 250ms ease,
+        opacity 180ms ease;
+}
+
+#stock-panel .stock-chart-bar:hover {
+    opacity: 1;
+}
+
+#stock-panel .stock-chart-placeholder {
+    width: 100%;
+
+    color: var(--stock-text-muted);
+
+    font-size: 10px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   13. BUY AND SELL FORM ROWS
+   ========================================================= */
+
+#stock-panel .stock-trade-row,
+#stock-panel .stock-sell-row {
+    display: grid;
+    grid-template-columns:
+        auto
+        minmax(55px, 1fr)
+        auto;
+
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+}
+
+#stock-panel .stock-sell-row {
+    grid-template-columns:
+        auto
+        minmax(45px, 1fr)
+        auto
+        auto;
+}
+
+#stock-panel .stock-quantity-label {
+    color: var(--stock-text-secondary);
+
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+#stock-panel .stock-quantity-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+
+    padding: 9px 10px;
+
+    border: 1px solid var(--stock-border);
+    border-radius: 8px;
+
+    background: rgba(7, 4, 12, 0.8);
+
+    color: var(--stock-text);
+
+    font-size: 12px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+
+    outline: none;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#stock-panel .stock-quantity-input::placeholder {
+    color: var(--stock-text-muted);
+}
+
+#stock-panel .stock-quantity-input:hover {
+    border-color: rgba(168, 85, 247, 0.38);
+}
+
+#stock-panel .stock-quantity-input:focus {
+    border-color: var(--stock-purple-light);
+
+    background: rgba(15, 8, 25, 0.98);
+
+    box-shadow:
+        0 0 0 3px rgba(168, 85, 247, 0.075),
+        0 0 14px rgba(168, 85, 247, 0.06);
+}
+
+
+/* =========================================================
+   14. BUY BUTTON
+   ========================================================= */
+
+#stock-panel .stock-buy-button {
+    min-height: 40px;
+    padding: 9px 14px;
+
+    border: 1px solid rgba(192, 132, 252, 0.43);
+    border-radius: 8px;
+
+    background: linear-gradient(
+        110deg,
+        #6b21a8,
+        #9333ea
+    );
+
+    color: #ffffff;
+
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+
+    box-shadow:
+        0 0 12px rgba(168, 85, 247, 0.1);
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+#stock-panel .stock-buy-button:hover:not(:disabled) {
+    border-color: #e9d5ff;
+
+    background: linear-gradient(
+        110deg,
+        #7e22ce,
+        #a855f7
+    );
+
+    box-shadow:
+        0 0 19px rgba(168, 85, 247, 0.22);
+}
+
+#stock-panel .stock-buy-button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+
+/* =========================================================
+   15. SELL BUTTON
+   ========================================================= */
+
+#stock-panel .stock-sell-button {
+    min-height: 40px;
+    padding: 9px 13px;
+
+    border: 1px solid rgba(255, 127, 169, 0.25);
+    border-radius: 8px;
+
+    background: rgba(255, 127, 169, 0.065);
+
+    color: var(--stock-negative);
+
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+#stock-panel .stock-sell-button:hover:not(:disabled) {
+    border-color: rgba(255, 127, 169, 0.52);
+
+    background: rgba(255, 127, 169, 0.12);
+
+    box-shadow:
+        0 0 15px rgba(255, 127, 169, 0.06);
+}
+
+#stock-panel .stock-sell-button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+
+/* =========================================================
+   16. SELL ALL BUTTON
+   ========================================================= */
+
+#stock-panel .stock-sell-all-button {
+    min-height: 40px;
+    padding: 9px 11px;
+
+    border: 1px solid rgba(168, 85, 247, 0.22);
+    border-radius: 8px;
+
+    background: rgba(168, 85, 247, 0.045);
+
+    color: var(--stock-text-secondary);
+
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        color 180ms ease;
+}
+
+#stock-panel .stock-sell-all-button:hover:not(:disabled) {
+    border-color: var(--stock-border-bright);
+
+    background: rgba(168, 85, 247, 0.12);
+
+    color: var(--stock-purple-bright);
+}
+
+
+/* =========================================================
+   17. STOCK CARD FOOTER
+   ========================================================= */
+
+#stock-panel .stock-card-footer {
+    padding-top: 12px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+
+    border-top: 1px solid rgba(168, 85, 247, 0.10);
+}
+
+#stock-panel .stock-card-footer > span {
+    color: var(--stock-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#stock-panel .stock-card-footer > strong {
+    color: var(--stock-text-secondary);
+
+    font-size: 11px;
+    font-weight: 900;
+
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   18. PORTFOLIO LIST
+   ========================================================= */
+
+#stock-panel .stock-portfolio {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+
+/* =========================================================
+   19. PORTFOLIO CARD
+   ========================================================= */
+
+#stock-panel .stock-portfolio-card {
+    --stock-color: #a855f7;
+
+    position: relative;
+
+    min-width: 0;
+    padding: 18px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--stock-border);
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            color-mix(
+                in srgb,
+                var(--stock-color) 6%,
+                transparent
+            ),
+            transparent 65%
+        ),
+        rgba(19, 11, 31, 0.91);
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#stock-panel .stock-portfolio-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 3px;
+    height: 100%;
+
+    background: var(--stock-color);
+
+    opacity: 0.65;
+}
+
+#stock-panel .stock-portfolio-card:hover {
+    border-color: color-mix(
+        in srgb,
+        var(--stock-color) 36%,
+        transparent
+    );
+
+    box-shadow:
+        0 0 18px color-mix(
+            in srgb,
+            var(--stock-color) 6%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   20. PORTFOLIO HEADER
+   ========================================================= */
+
+#stock-panel .stock-portfolio-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+#stock-panel .stock-portfolio-heading > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#stock-panel .stock-portfolio-heading > div > strong {
+    color: var(--stock-text);
+
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+#stock-panel .stock-holding-shares {
+    flex-shrink: 0;
+
+    padding: 6px 9px;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--stock-color) 26%,
+        transparent
+    );
+
+    border-radius: 7px;
+
+    background: color-mix(
+        in srgb,
+        var(--stock-color) 7%,
+        transparent
+    );
+
+    color: var(--stock-color);
+
+    font-size: 11px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   21. PORTFOLIO STATISTICS
+   ========================================================= */
+
+#stock-panel .stock-portfolio-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+#stock-panel .stock-portfolio-stats > div {
+    min-width: 0;
+    min-height: 68px;
+
+    padding: 12px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 9px;
+
+    border: 1px solid rgba(168, 85, 247, 0.12);
+    border-radius: 9px;
+
+    background: rgba(168, 85, 247, 0.035);
+}
+
+#stock-panel .stock-portfolio-stats > div > span {
+    color: var(--stock-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#stock-panel .stock-portfolio-stats > div > strong {
+    color: var(--stock-text);
+
+    font-size: 13px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+
+    overflow-wrap: anywhere;
+}
+
+#stock-panel .stock-portfolio-stats .stock-profit-positive {
+    color: var(--stock-positive);
+}
+
+#stock-panel .stock-portfolio-stats .stock-profit-negative {
+    color: var(--stock-negative);
+}
+
+#stock-panel .stock-portfolio-stats .stock-profit-neutral {
+    color: var(--stock-text-secondary);
+}
+
+
+/* =========================================================
+   22. EMPTY STATE
+   ========================================================= */
+
+#stock-panel .empty-message {
+    margin: 0;
+    padding: 27px 16px;
+
+    border: 1px dashed rgba(168, 85, 247, 0.22);
+    border-radius: 11px;
+
+    background: rgba(168, 85, 247, 0.025);
+
+    color: var(--stock-text-muted);
+
+    font-size: 11px;
+    line-height: 1.8;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   23. LIGHT THEME
+   ========================================================= */
+
+body.light-theme {
+    --stock-bg: rgba(255, 255, 255, 0.95);
+    --stock-card-bg: rgba(255, 255, 255, 0.97);
+
+    --stock-text: #281638;
+    --stock-text-secondary: #6e5786;
+    --stock-text-muted: #9582a8;
+
+    --stock-border: rgba(126, 34, 206, 0.16);
+    --stock-border-bright: rgba(126, 34, 206, 0.38);
+}
+
+body.light-theme #stock-panel .stock-summary > div {
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(168, 85, 247, 0.07),
+            transparent 65%
+        ),
+        #ffffff;
+}
+
+body.light-theme #stock-panel .stock-summary strong {
+    color: #7025b0;
+}
+
+body.light-theme #stock-panel .stock-card {
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            color-mix(
+                in srgb,
+                var(--stock-color) 5%,
+                transparent
+            ),
+            transparent 65%
+        ),
+        #ffffff;
+
+    box-shadow:
+        0 4px 16px rgba(39, 16, 65, 0.045);
+}
+
+body.light-theme #stock-panel .stock-company-name {
+    color: #281638;
+}
+
+body.light-theme #stock-panel .stock-price {
+    color: #7025b0;
+}
+
+body.light-theme #stock-panel .stock-mini-chart {
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 19px,
+            rgba(126, 34, 206, 0.065) 20px
+        ),
+        #f8f3ff;
+}
+
+body.light-theme #stock-panel .stock-quantity-input {
+    border-color: rgba(126, 34, 206, 0.18);
+
+    background: #ffffff;
+
+    color: #281638;
+}
+
+body.light-theme #stock-panel .stock-quantity-input:focus {
+    background: #ffffff;
+}
+
+body.light-theme #stock-panel .stock-portfolio-card {
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            color-mix(
+                in srgb,
+                var(--stock-color) 4%,
+                transparent
+            ),
+            transparent 65%
+        ),
+        #ffffff;
+}
+
+body.light-theme #stock-panel .stock-portfolio-stats > div {
+    border-color: rgba(126, 34, 206, 0.1);
+
+    background: rgba(168, 85, 247, 0.025);
+}
+
+body.light-theme #stock-panel .stock-portfolio-stats > div > strong {
+    color: #281638;
+}
+
+body.light-theme #stock-panel .stock-portfolio-stats .stock-profit-positive {
+    color: #168455;
+}
+
+body.light-theme #stock-panel .stock-portfolio-stats .stock-profit-negative {
+    color: #c52d62;
+}
+
+body.light-theme #stock-panel .stock-portfolio-stats .stock-profit-neutral {
+    color: #6e5786;
+}
+
+body.light-theme #stock-panel .stock-card-footer > strong {
+    color: #6e5786;
+}
+
+
+/* =========================================================
+   24. RESPONSIVE: TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    #stock-panel .stock-card {
+        padding: 17px;
+    }
+
+    #stock-panel .stock-price {
+        font-size: 25px;
+    }
+
+    #stock-panel .stock-trade-row {
+        grid-template-columns:
+            auto
+            minmax(55px, 1fr)
+            auto;
+    }
+
+    #stock-panel .stock-sell-row {
+        grid-template-columns:
+            auto
+            minmax(45px, 1fr)
+            auto
+            auto;
+    }
+}
+
+
+/* =========================================================
+   25. RESPONSIVE: MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+    #stock-panel .content-panel-heading {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    #stock-panel .market-status {
+        max-width: 48%;
+        font-size: 8px;
+        text-align: center;
+        white-space: normal;
+    }
+
+    #stock-panel .stock-summary > div {
+        min-height: 95px;
+        padding: 14px;
+    }
+
+    #stock-panel .stock-summary strong {
+        font-size: clamp(17px, 4.5vw, 23px);
+    }
+
+    #stock-panel .stock-card {
+        padding: 15px;
+        gap: 13px;
+    }
+
+    #stock-panel .stock-company-icon {
+        width: 41px;
+        height: 41px;
+
+        font-size: 19px;
+    }
+
+    #stock-panel .stock-company-name {
+        font-size: 12px;
+    }
+
+    #stock-panel .stock-price {
+        font-size: 24px;
+    }
+
+    #stock-panel .stock-mini-chart {
+        height: 55px;
+    }
+
+    #stock-panel .stock-trade-row {
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(70px, 1fr);
+
+        gap: 9px;
+    }
+
+    #stock-panel .stock-trade-row .stock-quantity-label {
+        grid-column: 1 / -1;
+    }
+
+    #stock-panel .stock-trade-row .stock-quantity-input {
+        grid-column: 1;
+    }
+
+    #stock-panel .stock-trade-row .stock-buy-button {
+        grid-column: 2;
+    }
+
+    #stock-panel .stock-sell-row {
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(65px, 1fr);
+
+        gap: 9px;
+    }
+
+    #stock-panel .stock-sell-row .stock-quantity-label {
+        grid-column: 1 / -1;
+    }
+
+    #stock-panel .stock-sell-row .stock-quantity-input {
+        grid-column: 1;
+    }
+
+    #stock-panel .stock-sell-row .stock-sell-button {
+        grid-column: 2;
+    }
+
+    #stock-panel .stock-sell-row .stock-sell-all-button {
+        grid-column: 1 / -1;
+    }
+
+    #stock-panel .stock-portfolio-card {
+        padding: 15px;
+    }
+
+    #stock-panel .stock-portfolio-stats {
+        gap: 8px;
+    }
+
+    #stock-panel .stock-portfolio-stats > div {
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   26. RESPONSIVE: SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 390px) {
+    #stock-panel .stock-summary {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #stock-panel .stock-summary > div {
+        min-height: 80px;
+    }
+
+    #stock-panel .stock-summary strong {
+        font-size: 22px;
+    }
+
+    #stock-panel .stock-card-heading {
+        flex-wrap: wrap;
+    }
+
+    #stock-panel .stock-change {
+        margin-left: auto;
+    }
+
+    #stock-panel .stock-price-row {
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #stock-panel .stock-price {
+        font-size: 21px;
+    }
+
+    #stock-panel .stock-price-change strong {
+        font-size: 10px;
+    }
+
+    #stock-panel .stock-portfolio-heading {
+        align-items: flex-start;
+    }
+
+    #stock-panel .stock-portfolio-stats {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #stock-panel .stock-portfolio-stats > div {
+        min-height: 58px;
+
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    #stock-panel .stock-portfolio-stats > div > strong {
+        text-align: right;
+    }
+
+    #stock-panel .stock-sell-row {
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+    }
+}
+
+
+/* =========================================================
+   27. ACCESSIBILITY
+   ========================================================= */
+
+#stock-panel button:focus-visible,
+#stock-panel input:focus-visible {
+    outline: 2px solid var(--stock-purple-light);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #stock-panel .stock-card,
+    #stock-panel .stock-portfolio-card,
+    #stock-panel .stock-chart-bar,
+    #stock-panel .stock-quantity-input,
+    #stock-panel .stock-buy-button,
+    #stock-panel .stock-sell-button,
+    #stock-panel .stock-sell-all-button {
+        transition: none !important;
+    }
+
+    #stock-panel .stock-card:hover {
+        transform: none;
+    }
+}
