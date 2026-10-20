@@ -1,0 +1,695 @@
+```css
+/* =========================================================
+   VIOLET VAULT
+   Rarity Design — rarity.css
+   Violet Neon Rarity System
+   ========================================================= */
+
+
+/* =========================================================
+   1. RARITY VARIABLES
+   ========================================================= */
+
+:root {
+    --rarity-common: #aaa2bb;
+    --rarity-uncommon: #73dca5;
+    --rarity-rare: #62a9ff;
+    --rarity-epic: #bd83ff;
+    --rarity-legendary: #ffcf70;
+    --rarity-mythic: #ff80d0;
+    --rarity-ultimate: #f1d5ff;
+
+    --rarity-purple: #a855f7;
+    --rarity-purple-light: #c084fc;
+    --rarity-purple-bright: #e9d5ff;
+
+    --rarity-text: #f5efff;
+    --rarity-text-secondary: #b9a8d1;
+    --rarity-text-muted: #79688f;
+
+    --rarity-border: rgba(168, 85, 247, 0.2);
+}
+
+
+/* =========================================================
+   2. RARITY PANEL
+   ========================================================= */
+
+.rarity-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+.rarity-panel::before {
+    content: "";
+
+    position: absolute;
+    top: -65px;
+    right: -65px;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    background: rgba(168, 85, 247, 0.08);
+    filter: blur(38px);
+
+    pointer-events: none;
+}
+
+.rarity-panel > * {
+    position: relative;
+}
+
+.rarity-panel .panel-heading {
+    margin-bottom: 18px;
+}
+
+.rarity-panel .panel-icon {
+    color: var(--rarity-purple-light);
+
+    text-shadow:
+        0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+
+/* =========================================================
+   3. RARITY LIST
+   ========================================================= */
+
+.rarity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.rarity-list:empty::after {
+    content: "희귀도 정보를 불러오는 중...";
+
+    padding: 16px 8px;
+
+    color: var(--rarity-text-muted);
+    font-size: 11px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   4. BASE RARITY ROW
+   ========================================================= */
+
+.rarity-row {
+    --rarity-color: var(--rarity-common);
+
+    position: relative;
+
+    min-width: 0;
+    min-height: 43px;
+
+    padding: 9px 10px;
+
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+
+    overflow: hidden;
+
+    border: 1px solid transparent;
+    border-radius: 9px;
+
+    background: rgba(168, 85, 247, 0.025);
+
+    color: var(--rarity-text-secondary);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.rarity-row::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        90deg,
+        var(--rarity-color),
+        transparent 82%
+    );
+
+    opacity: 0.025;
+
+    pointer-events: none;
+}
+
+.rarity-row:hover {
+    transform: translateX(2px);
+
+    border-color: color-mix(
+        in srgb,
+        var(--rarity-color) 32%,
+        transparent
+    );
+
+    background: color-mix(
+        in srgb,
+        var(--rarity-color) 7%,
+        transparent
+    );
+
+    color: var(--rarity-text);
+
+    box-shadow:
+        0 0 13px color-mix(
+            in srgb,
+            var(--rarity-color) 6%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   5. RARITY DOT
+   ========================================================= */
+
+.rarity-dot {
+    position: relative;
+
+    width: 7px;
+    height: 7px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--rarity-color);
+
+    box-shadow:
+        0 0 7px color-mix(
+            in srgb,
+            var(--rarity-color) 60%,
+            transparent
+        );
+
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.rarity-row:hover .rarity-dot {
+    transform: scale(1.25);
+
+    box-shadow:
+        0 0 10px var(--rarity-color),
+        0 0 18px color-mix(
+            in srgb,
+            var(--rarity-color) 35%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   6. RARITY NAME
+   ========================================================= */
+
+.rarity-name {
+    min-width: 0;
+
+    color: var(--rarity-color);
+
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   7. RARITY RANGE AND CHANCE
+   ========================================================= */
+
+.rarity-range {
+    margin-left: 0;
+
+    color: var(--rarity-text-muted);
+
+    font-size: 9px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+
+    text-align: right;
+    white-space: nowrap;
+}
+
+.rarity-chance {
+    color: var(--rarity-color);
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   8. COMMON
+   ========================================================= */
+
+.rarity-row.rarity-common {
+    --rarity-color: var(--rarity-common);
+}
+
+.rarity-row.rarity-common .rarity-dot {
+    box-shadow:
+        0 0 6px rgba(170, 162, 187, 0.35);
+}
+
+
+/* =========================================================
+   9. UNCOMMON
+   ========================================================= */
+
+.rarity-row.rarity-uncommon {
+    --rarity-color: var(--rarity-uncommon);
+}
+
+.rarity-row.rarity-uncommon:hover {
+    border-color: rgba(115, 220, 165, 0.25);
+
+    box-shadow:
+        0 0 15px rgba(115, 220, 165, 0.055);
+}
+
+
+/* =========================================================
+   10. RARE
+   ========================================================= */
+
+.rarity-row.rarity-rare {
+    --rarity-color: var(--rarity-rare);
+}
+
+.rarity-row.rarity-rare:hover {
+    border-color: rgba(98, 169, 255, 0.3);
+
+    box-shadow:
+        0 0 15px rgba(98, 169, 255, 0.06);
+}
+
+
+/* =========================================================
+   11. EPIC
+   ========================================================= */
+
+.rarity-row.rarity-epic {
+    --rarity-color: var(--rarity-epic);
+}
+
+.rarity-row.rarity-epic:hover {
+    border-color: rgba(189, 131, 255, 0.34);
+
+    box-shadow:
+        0 0 16px rgba(189, 131, 255, 0.075);
+}
+
+
+/* =========================================================
+   12. LEGENDARY
+   ========================================================= */
+
+.rarity-row.rarity-legendary {
+    --rarity-color: var(--rarity-legendary);
+
+    background: rgba(255, 207, 112, 0.025);
+}
+
+.rarity-row.rarity-legendary:hover {
+    border-color: rgba(255, 207, 112, 0.38);
+
+    background: rgba(255, 207, 112, 0.06);
+
+    box-shadow:
+        0 0 17px rgba(255, 207, 112, 0.07);
+}
+
+
+/* =========================================================
+   13. MYTHIC
+   ========================================================= */
+
+.rarity-row.rarity-mythic {
+    --rarity-color: var(--rarity-mythic);
+
+    background: rgba(255, 128, 208, 0.025);
+}
+
+.rarity-row.rarity-mythic:hover {
+    border-color: rgba(255, 128, 208, 0.4);
+
+    background: rgba(255, 128, 208, 0.065);
+
+    box-shadow:
+        0 0 18px rgba(255, 128, 208, 0.08);
+}
+
+
+/* =========================================================
+   14. ULTIMATE
+   ========================================================= */
+
+.rarity-row.rarity-ultimate {
+    --rarity-color: var(--rarity-ultimate);
+
+    border-color: rgba(216, 180, 254, 0.25);
+
+    background:
+        linear-gradient(
+            95deg,
+            rgba(126, 34, 206, 0.13),
+            rgba(168, 85, 247, 0.035)
+        );
+
+    box-shadow:
+        inset 0 0 14px rgba(168, 85, 247, 0.035);
+}
+
+.rarity-row.rarity-ultimate::before {
+    background: linear-gradient(
+        90deg,
+        #9333ea,
+        #e9d5ff 55%,
+        transparent
+    );
+
+    opacity: 0.085;
+}
+
+.rarity-row.rarity-ultimate .rarity-name {
+    color: var(--rarity-ultimate);
+
+    text-shadow:
+        0 0 9px rgba(216, 180, 254, 0.3);
+}
+
+.rarity-row.rarity-ultimate .rarity-dot {
+    box-shadow:
+        0 0 8px rgba(241, 213, 255, 0.8),
+        0 0 17px rgba(168, 85, 247, 0.42);
+}
+
+.rarity-row.rarity-ultimate:hover {
+    border-color: rgba(233, 213, 255, 0.7);
+
+    background:
+        linear-gradient(
+            95deg,
+            rgba(126, 34, 206, 0.2),
+            rgba(168, 85, 247, 0.07)
+        );
+
+    box-shadow:
+        inset 0 0 18px rgba(168, 85, 247, 0.06),
+        0 0 18px rgba(168, 85, 247, 0.1);
+}
+
+
+/* =========================================================
+   15. DRAW RESULT RARITY BADGE
+   ========================================================= */
+
+#rarity-badge {
+    --rarity-color: var(--rarity-purple-light);
+
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 28px;
+    max-width: 100%;
+
+    padding: 5px 13px;
+
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 999px;
+
+    background: rgba(168, 85, 247, 0.075);
+
+    color: var(--rarity-color);
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+
+    text-align: center;
+    overflow-wrap: anywhere;
+
+    transition:
+        color 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+
+/* Common badge */
+
+#rarity-badge.rarity-common {
+    --rarity-color: var(--rarity-common);
+
+    border-color: rgba(170, 162, 187, 0.25);
+
+    background: rgba(170, 162, 187, 0.055);
+}
+
+
+/* Uncommon badge */
+
+#rarity-badge.rarity-uncommon {
+    --rarity-color: var(--rarity-uncommon);
+
+    border-color: rgba(115, 220, 165, 0.32);
+
+    background: rgba(115, 220, 165, 0.06);
+
+    box-shadow:
+        0 0 10px rgba(115, 220, 165, 0.035);
+}
+
+
+/* Rare badge */
+
+#rarity-badge.rarity-rare {
+    --rarity-color: var(--rarity-rare);
+
+    border-color: rgba(98, 169, 255, 0.34);
+
+    background: rgba(98, 169, 255, 0.065);
+
+    box-shadow:
+        0 0 11px rgba(98, 169, 255, 0.04);
+}
+
+
+/* Epic badge */
+
+#rarity-badge.rarity-epic {
+    --rarity-color: var(--rarity-epic);
+
+    border-color: rgba(189, 131, 255, 0.38);
+
+    background: rgba(189, 131, 255, 0.075);
+
+    box-shadow:
+        0 0 13px rgba(189, 131, 255, 0.055);
+}
+
+
+/* Legendary badge */
+
+#rarity-badge.rarity-legendary {
+    --rarity-color: var(--rarity-legendary);
+
+    border-color: rgba(255, 207, 112, 0.45);
+
+    background: rgba(255, 207, 112, 0.075);
+
+    box-shadow:
+        0 0 13px rgba(255, 207, 112, 0.055);
+}
+
+
+/* Mythic badge */
+
+#rarity-badge.rarity-mythic {
+    --rarity-color: var(--rarity-mythic);
+
+    border-color: rgba(255, 128, 208, 0.48);
+
+    background: rgba(255, 128, 208, 0.08);
+
+    box-shadow:
+        0 0 15px rgba(255, 128, 208, 0.065);
+}
+
+
+/* Ultimate badge */
+
+#rarity-badge.rarity-ultimate {
+    --rarity-color: var(--rarity-ultimate);
+
+    border-color: rgba(233, 213, 255, 0.75);
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(126, 34, 206, 0.2),
+            rgba(168, 85, 247, 0.105)
+        );
+
+    color: #f5eaff;
+
+    text-shadow:
+        0 0 10px rgba(216, 180, 254, 0.45);
+
+    box-shadow:
+        0 0 12px rgba(192, 132, 252, 0.18),
+        0 0 26px rgba(168, 85, 247, 0.09);
+}
+
+
+/* =========================================================
+   16. SPECIAL RESULT STATE
+   ========================================================= */
+
+#draw-machine.is-winning #rarity-badge {
+    border-color: rgba(216, 180, 254, 0.65);
+
+    box-shadow:
+        0 0 13px rgba(168, 85, 247, 0.15);
+}
+
+
+/* =========================================================
+   17. LIGHT THEME
+   ========================================================= */
+
+body.light-theme .rarity-row {
+    background: rgba(168, 85, 247, 0.025);
+}
+
+body.light-theme .rarity-range {
+    color: #89769d;
+}
+
+body.light-theme .rarity-row.rarity-ultimate {
+    border-color: rgba(126, 34, 206, 0.24);
+
+    background:
+        linear-gradient(
+            95deg,
+            rgba(168, 85, 247, 0.1),
+            rgba(168, 85, 247, 0.025)
+        );
+}
+
+body.light-theme #rarity-badge {
+    background: rgba(168, 85, 247, 0.055);
+}
+
+body.light-theme #rarity-badge.rarity-ultimate {
+    color: #6521a8;
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(168, 85, 247, 0.12),
+            rgba(168, 85, 247, 0.045)
+        );
+}
+
+
+/* =========================================================
+   18. RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1250px) {
+    .rarity-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .rarity-row {
+        grid-template-columns: 8px minmax(0, 1fr);
+        align-content: center;
+    }
+
+    .rarity-range {
+        grid-column: 2;
+        margin-top: 2px;
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 760px) {
+    .rarity-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rarity-row {
+        grid-template-columns: 8px minmax(0, 1fr) auto;
+    }
+
+    .rarity-range {
+        grid-column: auto;
+        margin-top: 0;
+        text-align: right;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 390px) {
+    .rarity-row {
+        padding: 9px 8px;
+        gap: 7px;
+    }
+
+    .rarity-name {
+        font-size: 10px;
+    }
+
+    .rarity-range {
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   19. REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .rarity-row,
+    .rarity-dot,
+    #rarity-badge {
+        transition: none !important;
+    }
+
+    .rarity-row:hover {
+        transform: none;
+    }
+}
+```
