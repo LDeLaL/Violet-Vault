@@ -1,0 +1,681 @@
+/* =========================================================
+   VIOLET VAULT
+   Effects Design — effect.css
+   Violet Neon Visual Effects
+   ========================================================= */
+
+
+/* =========================================================
+   1. EFFECT VARIABLES
+   ========================================================= */
+
+:root {
+    --effect-purple: #a855f7;
+    --effect-purple-light: #c084fc;
+    --effect-purple-bright: #e9d5ff;
+
+    --effect-pink: #ff80d0;
+    --effect-gold: #ffcf70;
+    --effect-blue: #62a9ff;
+
+    --effect-glow-small:
+        0 0 8px rgba(168, 85, 247, 0.35);
+
+    --effect-glow-medium:
+        0 0 14px rgba(168, 85, 247, 0.45),
+        0 0 30px rgba(168, 85, 247, 0.15);
+
+    --effect-glow-large:
+        0 0 20px rgba(168, 85, 247, 0.55),
+        0 0 45px rgba(168, 85, 247, 0.25),
+        0 0 80px rgba(168, 85, 247, 0.12);
+}
+
+
+/* =========================================================
+   2. BACKGROUND PARTICLES
+   ========================================================= */
+
+#particle-background {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+    contain: layout style paint;
+}
+
+#particle-background span {
+    position: absolute;
+
+    display: block;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    will-change: transform, opacity;
+}
+
+
+/* =========================================================
+   3. MAIN EFFECT LAYER
+   ========================================================= */
+
+#violet-effect-layer {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 9999;
+
+    contain: layout style paint;
+}
+
+#violet-effect-layer * {
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   4. GENERAL PARTICLES
+   ========================================================= */
+
+.violet-particle {
+    position: absolute;
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--effect-purple-light);
+
+    box-shadow:
+        0 0 6px var(--effect-purple),
+        0 0 15px rgba(168, 85, 247, 0.6);
+
+    pointer-events: none;
+
+    will-change: transform, opacity;
+}
+
+
+/* =========================================================
+   5. PURPLE GLOW
+   ========================================================= */
+
+.violet-glow {
+    box-shadow:
+        0 0 8px rgba(168, 85, 247, 0.4),
+        0 0 18px rgba(168, 85, 247, 0.25);
+}
+
+.violet-glow-strong {
+    box-shadow:
+        0 0 12px rgba(192, 132, 252, 0.65),
+        0 0 28px rgba(168, 85, 247, 0.4),
+        0 0 55px rgba(168, 85, 247, 0.15);
+}
+
+
+/* =========================================================
+   6. EFFECT FLASH
+   ========================================================= */
+
+.violet-flash {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9998;
+
+    background: rgba(168, 85, 247, 0.2);
+
+    pointer-events: none;
+
+    mix-blend-mode: screen;
+
+    will-change: opacity;
+}
+
+@keyframes violetFlashFade {
+    from {
+        opacity: 0.3;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.violet-flash.is-active {
+    animation: violetFlashFade 500ms ease-out forwards;
+}
+
+
+/* =========================================================
+   7. GLOW RING
+   ========================================================= */
+
+.violet-glow-ring {
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    border: 2px solid var(--effect-purple-light);
+    border-radius: 50%;
+
+    background: transparent;
+
+    box-shadow:
+        0 0 12px rgba(192, 132, 252, 0.6),
+        inset 0 0 12px rgba(168, 85, 247, 0.25);
+
+    transform: translate(-50%, -50%) scale(0.2);
+
+    opacity: 1;
+
+    pointer-events: none;
+
+    will-change: transform, opacity;
+}
+
+@keyframes violetRingExpand {
+    from {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0.95;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(2.8);
+        opacity: 0;
+    }
+}
+
+.violet-glow-ring.is-active {
+    animation: violetRingExpand 750ms ease-out forwards;
+}
+
+
+/* =========================================================
+   8. BUTTON PARTICLE EFFECT
+   ========================================================= */
+
+.violet-click-particle {
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--effect-purple-light);
+
+    box-shadow:
+        0 0 8px var(--effect-purple),
+        0 0 15px var(--effect-purple-light);
+
+    pointer-events: none;
+
+    will-change: transform, opacity;
+}
+
+@keyframes violetClickBurst {
+    from {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.9;
+    }
+
+    to {
+        transform: translate(var(--particle-x, 20px),
+                             var(--particle-y, -20px)) scale(0);
+        opacity: 0;
+    }
+}
+
+.violet-click-particle.is-active {
+    animation: violetClickBurst 450ms ease-out forwards;
+}
+
+
+/* =========================================================
+   9. DRAW MACHINE GLOW
+   ========================================================= */
+
+#draw-machine {
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        background 180ms ease;
+}
+
+#draw-machine.is-winning {
+    border-color: rgba(216, 180, 254, 0.8);
+
+    box-shadow:
+        inset 0 0 40px rgba(168, 85, 247, 0.13),
+        0 0 24px rgba(168, 85, 247, 0.16);
+}
+
+#draw-machine.is-ultimate {
+    border-color: rgba(233, 213, 255, 0.9);
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(168, 85, 247, 0.22),
+            transparent 70%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(30, 14, 49, 0.98),
+            rgba(10, 5, 17, 0.98)
+        );
+
+    box-shadow:
+        inset 0 0 45px rgba(168, 85, 247, 0.2),
+        0 0 22px rgba(168, 85, 247, 0.28),
+        0 0 50px rgba(168, 85, 247, 0.12);
+}
+
+
+/* =========================================================
+   10. RESULT NUMBER EFFECTS
+   ========================================================= */
+
+#money-display {
+    position: relative;
+
+    transition:
+        color 180ms ease,
+        text-shadow 180ms ease;
+
+    will-change: transform, opacity;
+}
+
+#money-display.is-revealing {
+    animation: violetMoneyReveal 450ms
+        cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes violetMoneyReveal {
+    0% {
+        opacity: 0.3;
+
+        transform: scale(0.88);
+
+        filter: blur(5px);
+    }
+
+    65% {
+        opacity: 1;
+
+        transform: scale(1.06);
+
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 1;
+
+        transform: scale(1);
+
+        filter: blur(0);
+    }
+}
+
+#result-value {
+    display: inline-block;
+
+    font-variant-numeric: tabular-nums;
+
+    transition:
+        color 180ms ease,
+        text-shadow 180ms ease;
+}
+
+
+/* =========================================================
+   11. RARITY COLOR EFFECTS
+   ========================================================= */
+
+/* Common */
+
+.effect-common {
+    color: #aaa2bb;
+
+    text-shadow:
+        0 0 8px rgba(170, 162, 187, 0.25);
+}
+
+
+/* Uncommon */
+
+.effect-uncommon {
+    color: #73dca5;
+
+    text-shadow:
+        0 0 10px rgba(115, 220, 165, 0.35);
+}
+
+
+/* Rare */
+
+.effect-rare {
+    color: #62a9ff;
+
+    text-shadow:
+        0 0 12px rgba(98, 169, 255, 0.4);
+}
+
+
+/* Epic */
+
+.effect-epic {
+    color: #bd83ff;
+
+    text-shadow:
+        0 0 12px rgba(189, 131, 255, 0.45);
+}
+
+
+/* Legendary */
+
+.effect-legendary {
+    color: var(--effect-gold);
+
+    text-shadow:
+        0 0 10px rgba(255, 207, 112, 0.45),
+        0 0 24px rgba(255, 207, 112, 0.15);
+}
+
+
+/* Mythic */
+
+.effect-mythic {
+    color: var(--effect-pink);
+
+    text-shadow:
+        0 0 12px rgba(255, 128, 208, 0.55),
+        0 0 28px rgba(255, 128, 208, 0.2);
+}
+
+
+/* Ultimate */
+
+.effect-ultimate {
+    color: var(--effect-purple-bright);
+
+    text-shadow:
+        0 0 12px rgba(233, 213, 255, 0.8),
+        0 0 30px rgba(192, 132, 252, 0.65),
+        0 0 60px rgba(168, 85, 247, 0.3);
+}
+
+
+/* =========================================================
+   12. RARITY BADGE EFFECTS
+   ========================================================= */
+
+#rarity-badge {
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#rarity-badge.effect-legendary {
+    border-color: rgba(255, 207, 112, 0.45);
+
+    background: rgba(255, 207, 112, 0.08);
+
+    color: var(--effect-gold);
+
+    box-shadow:
+        0 0 12px rgba(255, 207, 112, 0.08);
+}
+
+#rarity-badge.effect-mythic {
+    border-color: rgba(255, 128, 208, 0.5);
+
+    background: rgba(255, 128, 208, 0.09);
+
+    color: var(--effect-pink);
+
+    box-shadow:
+        0 0 16px rgba(255, 128, 208, 0.12);
+}
+
+#rarity-badge.effect-ultimate {
+    border-color: rgba(233, 213, 255, 0.7);
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(126, 34, 206, 0.25),
+            rgba(168, 85, 247, 0.12)
+        );
+
+    color: var(--effect-purple-bright);
+
+    box-shadow:
+        0 0 12px rgba(192, 132, 252, 0.18),
+        0 0 26px rgba(168, 85, 247, 0.1);
+}
+
+
+/* =========================================================
+   13. ULTIMATE PARTICLE ATMOSPHERE
+   ========================================================= */
+
+@keyframes violetUltimatePulse {
+    0% {
+        box-shadow:
+            inset 0 0 22px rgba(168, 85, 247, 0.08),
+            0 0 12px rgba(168, 85, 247, 0.08);
+    }
+
+    50% {
+        box-shadow:
+            inset 0 0 55px rgba(168, 85, 247, 0.18),
+            0 0 32px rgba(168, 85, 247, 0.24);
+    }
+
+    100% {
+        box-shadow:
+            inset 0 0 22px rgba(168, 85, 247, 0.08),
+            0 0 12px rgba(168, 85, 247, 0.08);
+    }
+}
+
+#draw-machine.is-ultimate {
+    animation: violetUltimatePulse 1.2s ease-in-out;
+}
+
+
+/* =========================================================
+   14. RARE WIN ANNOUNCEMENT
+   ========================================================= */
+
+.violet-win-announcement {
+    position: fixed;
+
+    left: 50%;
+    top: 30%;
+
+    z-index: 10000;
+
+    max-width: min(90vw, 460px);
+
+    padding: 14px 24px;
+
+    border: 1px solid rgba(216, 180, 254, 0.6);
+    border-radius: 12px;
+
+    background: rgba(18, 9, 31, 0.96);
+
+    color: var(--effect-purple-bright);
+
+    font-size: 16px;
+    font-weight: 900;
+
+    text-align: center;
+
+    box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.2),
+        0 0 45px rgba(168, 85, 247, 0.12);
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+}
+
+@keyframes violetAnnouncement {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -35%) scale(0.9);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.04);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.97);
+    }
+}
+
+.violet-win-announcement.is-active {
+    animation: violetAnnouncement 1.3s ease-out forwards;
+}
+
+
+/* =========================================================
+   15. BUTTON GLOW
+   ========================================================= */
+
+.primary-button.violet-effect-active {
+    box-shadow:
+        0 0 14px rgba(168, 85, 247, 0.35),
+        0 0 28px rgba(168, 85, 247, 0.15);
+}
+
+@keyframes violetButtonGlow {
+    0%,
+    100% {
+        box-shadow:
+            0 0 12px rgba(168, 85, 247, 0.15);
+    }
+
+    50% {
+        box-shadow:
+            0 0 24px rgba(168, 85, 247, 0.4),
+            0 0 45px rgba(168, 85, 247, 0.13);
+    }
+}
+
+.primary-button.violet-effect-pulse {
+    animation: violetButtonGlow 1.5s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   16. LIGHT THEME
+   ========================================================= */
+
+body.light-theme #particle-background {
+    opacity: 0.65;
+}
+
+body.light-theme #draw-machine.is-ultimate {
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(168, 85, 247, 0.1),
+            transparent 70%
+        ),
+        #faf7ff;
+
+    box-shadow:
+        inset 0 0 40px rgba(168, 85, 247, 0.08),
+        0 0 25px rgba(168, 85, 247, 0.12);
+}
+
+body.light-theme .violet-win-announcement {
+    background: rgba(250, 247, 255, 0.98);
+
+    color: #6521a8;
+
+    box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.15);
+}
+
+
+/* =========================================================
+   17. PERFORMANCE
+   ========================================================= */
+
+#violet-effect-layer span,
+#violet-effect-layer div {
+    backface-visibility: hidden;
+}
+
+#particle-background span {
+    backface-visibility: hidden;
+}
+
+@media (max-width: 760px) {
+    .violet-particle {
+        box-shadow:
+            0 0 5px rgba(168, 85, 247, 0.4);
+    }
+
+    .violet-win-announcement {
+        top: 25%;
+
+        padding: 12px 18px;
+
+        font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   18. ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    #draw-machine,
+    #money-display,
+    #result-value,
+    #rarity-badge,
+    .violet-particle,
+    .violet-glow-ring,
+    .violet-win-announcement,
+    .primary-button.violet-effect-pulse {
+        animation: none !important;
+        transition: none !important;
+    }
+}
