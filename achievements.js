@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    VIOLET VAULT
    Achievements System — achievements.js
@@ -1085,4 +1084,3 @@
     );
 
 })();
-```
