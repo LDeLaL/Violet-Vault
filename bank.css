@@ -1,0 +1,910 @@
+```css
+/* =========================================================
+   VIOLET VAULT
+   Bank Design — bank.css
+   Violet Neon Banking System
+   ========================================================= */
+
+
+/* =========================================================
+   1. BANK VARIABLES
+   ========================================================= */
+
+:root {
+    --bank-purple: #a855f7;
+    --bank-purple-light: #c084fc;
+    --bank-purple-bright: #e9d5ff;
+
+    --bank-bg: rgba(17, 10, 28, 0.92);
+    --bank-card-bg: rgba(25, 15, 39, 0.9);
+
+    --bank-text: #f5efff;
+    --bank-text-secondary: #b9a8d1;
+    --bank-text-muted: #79688f;
+
+    --bank-border: rgba(168, 85, 247, 0.2);
+    --bank-border-bright: rgba(192, 132, 252, 0.48);
+
+    --bank-success: #70f0b0;
+    --bank-danger: #ff6b9d;
+
+    --bank-radius: 13px;
+
+    --bank-glow:
+        0 0 18px rgba(168, 85, 247, 0.1);
+}
+
+
+/* =========================================================
+   2. BANK MAIN PANEL
+   ========================================================= */
+
+#bank-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+#bank-panel > * {
+    position: relative;
+}
+
+#bank-panel::before {
+    content: "";
+
+    position: absolute;
+    top: -110px;
+    right: -90px;
+
+    width: 230px;
+    height: 230px;
+
+    border-radius: 50%;
+
+    background: rgba(126, 34, 206, 0.09);
+    filter: blur(55px);
+
+    pointer-events: none;
+}
+
+#bank-panel .content-panel-heading {
+    margin-bottom: 24px;
+}
+
+#bank-panel .content-panel-heading h2 {
+    color: var(--bank-text);
+    letter-spacing: -0.5px;
+}
+
+#bank-panel .eyebrow {
+    color: var(--bank-purple-light);
+}
+
+
+/* =========================================================
+   3. BANK STATUS BADGE
+   ========================================================= */
+
+.bank-status {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 6px 10px;
+
+    border: 1px solid rgba(112, 240, 176, 0.23);
+    border-radius: 7px;
+
+    background: rgba(112, 240, 176, 0.06);
+
+    color: var(--bank-success);
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+.bank-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--bank-success);
+
+    box-shadow:
+        0 0 8px rgba(112, 240, 176, 0.5);
+}
+
+
+/* =========================================================
+   4. BANK BALANCE CARD
+   ========================================================= */
+
+.bank-balance-card {
+    position: relative;
+
+    min-width: 0;
+
+    margin-bottom: 20px;
+    padding: 25px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(192, 132, 252, 0.36);
+    border-radius: 15px;
+
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(168, 85, 247, 0.2),
+            transparent 58%
+        ),
+        radial-gradient(
+            ellipse at 0% 100%,
+            rgba(126, 34, 206, 0.1),
+            transparent 55%
+        ),
+        linear-gradient(
+            140deg,
+            rgba(34, 19, 54, 0.97),
+            rgba(13, 8, 22, 0.98)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        0 8px 28px rgba(0, 0, 0, 0.17),
+        0 0 20px rgba(168, 85, 247, 0.055);
+}
+
+.bank-balance-card::before {
+    content: "V";
+
+    position: absolute;
+    right: 15px;
+    bottom: -48px;
+
+    color: rgba(192, 132, 252, 0.045);
+
+    font-size: 170px;
+    font-weight: 900;
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+.bank-balance-card::after {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #9333ea,
+        #d8b4fe,
+        transparent
+    );
+
+    opacity: 0.75;
+
+    pointer-events: none;
+}
+
+.bank-balance-card p {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 9px;
+
+    color: var(--bank-text-secondary);
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.bank-balance-card strong {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+
+    margin-bottom: 13px;
+
+    color: var(--bank-purple-bright);
+
+    font-size: clamp(30px, 4vw, 43px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -1.2px;
+
+    font-variant-numeric: tabular-nums;
+
+    overflow-wrap: anywhere;
+
+    text-shadow:
+        0 0 12px rgba(192, 132, 252, 0.2),
+        0 0 27px rgba(168, 85, 247, 0.12);
+}
+
+.bank-balance-card p:last-child {
+    position: relative;
+    z-index: 1;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    margin: 0;
+    padding: 5px 9px;
+
+    border: 1px solid rgba(168, 85, 247, 0.18);
+    border-radius: 6px;
+
+    background: rgba(168, 85, 247, 0.07);
+
+    color: #d6b9f4;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   5. BANK ACCOUNT SUMMARY
+   ========================================================= */
+
+.bank-account-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    margin-bottom: 27px;
+}
+
+.bank-policy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.bank-policy-item {
+    min-width: 0;
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    border: 1px solid var(--bank-border);
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(168, 85, 247, 0.075),
+            rgba(168, 85, 247, 0.018)
+        );
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease;
+}
+
+.bank-policy-item:hover {
+    border-color: var(--bank-border-bright);
+
+    background: rgba(168, 85, 247, 0.075);
+}
+
+.bank-policy-item span {
+    color: var(--bank-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.bank-policy-item strong {
+    color: var(--bank-purple-bright);
+
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+}
+
+
+/* =========================================================
+   6. BANK ACCOUNT STATUS
+   ========================================================= */
+
+.bank-account-status {
+    min-width: 0;
+    padding: 11px 13px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    border: 1px solid var(--bank-border);
+    border-radius: 9px;
+
+    background: rgba(168, 85, 247, 0.035);
+
+    color: var(--bank-text-secondary);
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.bank-account-status-dot {
+    width: 7px;
+    height: 7px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--bank-purple-light);
+
+    box-shadow:
+        0 0 9px rgba(192, 132, 252, 0.4);
+}
+
+.bank-status-available {
+    border-color: rgba(112, 240, 176, 0.19);
+
+    background: rgba(112, 240, 176, 0.035);
+
+    color: #9ddfbc;
+}
+
+.bank-status-available .bank-account-status-dot {
+    background: var(--bank-success);
+
+    box-shadow:
+        0 0 8px rgba(112, 240, 176, 0.4);
+}
+
+.bank-status-active {
+    border-color: rgba(192, 132, 252, 0.28);
+
+    background: rgba(168, 85, 247, 0.07);
+
+    color: var(--bank-purple-bright);
+}
+
+.bank-status-active .bank-account-status-dot {
+    background: var(--bank-purple-light);
+
+    box-shadow:
+        0 0 8px rgba(192, 132, 252, 0.5);
+}
+
+
+/* =========================================================
+   7. AVAILABLE BALANCE
+   ========================================================= */
+
+.bank-available-balance {
+    min-width: 0;
+    padding: 14px 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    border: 1px solid rgba(168, 85, 247, 0.13);
+    border-radius: 10px;
+
+    background: rgba(8, 5, 14, 0.42);
+}
+
+.bank-available-balance span {
+    color: var(--bank-text-muted);
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.bank-available-balance strong {
+    color: var(--bank-text);
+
+    font-size: 13px;
+    font-weight: 900;
+
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   8. FORM GROUPS
+   ========================================================= */
+
+#bank-panel .form-group {
+    margin-top: 23px;
+
+    padding: 19px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 11px;
+
+    border: 1px solid var(--bank-border);
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(25, 15, 39, 0.64),
+            rgba(12, 8, 20, 0.72)
+        );
+
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#bank-panel .form-group:hover {
+    border-color: rgba(168, 85, 247, 0.29);
+}
+
+#bank-panel .form-group label {
+    display: block;
+
+    color: var(--bank-text);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   9. LOAN AND REPAYMENT INPUTS
+   ========================================================= */
+
+#bank-panel input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+
+    padding: 12px 14px;
+
+    border: 1px solid rgba(168, 85, 247, 0.24);
+    border-radius: 9px;
+
+    background: rgba(7, 4, 12, 0.8);
+
+    color: var(--bank-text);
+
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+
+    outline: none;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+#bank-panel input[type="number"]::placeholder {
+    color: #705d83;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+#bank-panel input[type="number"]:hover {
+    border-color: rgba(168, 85, 247, 0.43);
+}
+
+#bank-panel input[type="number"]:focus {
+    border-color: var(--bank-purple-light);
+
+    background: rgba(15, 8, 25, 0.98);
+
+    box-shadow:
+        0 0 0 3px rgba(168, 85, 247, 0.09),
+        0 0 17px rgba(168, 85, 247, 0.07);
+}
+
+#bank-panel input[type="number"]::-webkit-inner-spin-button,
+#bank-panel input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   10. BORROW BUTTON
+   ========================================================= */
+
+#borrow-button {
+    width: 100%;
+    min-height: 49px;
+
+    border: 1px solid rgba(216, 180, 254, 0.43);
+    border-radius: 10px;
+
+    background: linear-gradient(
+        110deg,
+        #6b21a8,
+        #9333ea 55%,
+        #7e22ce
+    );
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    box-shadow:
+        0 0 15px rgba(147, 51, 234, 0.13),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+#borrow-button:hover:not(:disabled) {
+    border-color: #e9d5ff;
+
+    background: linear-gradient(
+        110deg,
+        #7e22ce,
+        #a855f7 55%,
+        #9333ea
+    );
+
+    box-shadow:
+        0 0 21px rgba(168, 85, 247, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+#borrow-button:active:not(:disabled) {
+    transform: scale(0.985);
+}
+
+
+/* =========================================================
+   11. REPAYMENT BUTTON
+   ========================================================= */
+
+#repay-button {
+    width: 100%;
+    min-height: 47px;
+
+    border: 1px solid rgba(192, 132, 252, 0.27);
+    border-radius: 10px;
+
+    background: rgba(168, 85, 247, 0.075);
+
+    color: var(--bank-purple-bright);
+
+    font-size: 12px;
+    font-weight: 900;
+
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease,
+        transform 180ms ease;
+}
+
+#repay-button:hover:not(:disabled) {
+    border-color: rgba(192, 132, 252, 0.62);
+
+    background: rgba(168, 85, 247, 0.15);
+
+    box-shadow:
+        0 0 17px rgba(168, 85, 247, 0.09);
+}
+
+#repay-button:active:not(:disabled) {
+    transform: scale(0.985);
+}
+
+#repay-button:disabled {
+    border-color: rgba(121, 104, 143, 0.14);
+
+    background: rgba(121, 104, 143, 0.035);
+
+    color: #6f607e;
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   12. BANK FORM FOCUS
+   ========================================================= */
+
+#bank-panel .form-group:focus-within {
+    border-color: rgba(168, 85, 247, 0.32);
+
+    box-shadow:
+        0 0 18px rgba(168, 85, 247, 0.035);
+}
+
+
+/* =========================================================
+   13. BANK NOTICES
+   ========================================================= */
+
+.bank-notice {
+    padding: 13px 15px;
+
+    border: 1px solid var(--bank-border);
+    border-radius: 9px;
+
+    background: rgba(168, 85, 247, 0.045);
+
+    color: var(--bank-text-secondary);
+
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.bank-notice strong {
+    color: var(--bank-purple-light);
+}
+
+.bank-notice.success {
+    border-color: rgba(112, 240, 176, 0.22);
+
+    background: rgba(112, 240, 176, 0.045);
+
+    color: #a7dfc0;
+}
+
+.bank-notice.error {
+    border-color: rgba(255, 107, 157, 0.22);
+
+    background: rgba(255, 107, 157, 0.045);
+
+    color: #ff9dbb;
+}
+
+
+/* =========================================================
+   14. LIGHT THEME
+   ========================================================= */
+
+body.light-theme {
+    --bank-bg: rgba(255, 255, 255, 0.94);
+    --bank-card-bg: rgba(255, 255, 255, 0.96);
+
+    --bank-text: #281638;
+    --bank-text-secondary: #6e5786;
+    --bank-text-muted: #9582a8;
+
+    --bank-border: rgba(126, 34, 206, 0.16);
+    --bank-border-bright: rgba(126, 34, 206, 0.38);
+}
+
+body.light-theme .bank-balance-card {
+    background:
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(168, 85, 247, 0.1),
+            transparent 58%
+        ),
+        #ffffff;
+
+    box-shadow:
+        0 6px 22px rgba(39, 16, 65, 0.055);
+}
+
+body.light-theme .bank-balance-card strong {
+    color: #6521a8;
+
+    text-shadow:
+        0 0 11px rgba(168, 85, 247, 0.12);
+}
+
+body.light-theme .bank-balance-card p:last-child {
+    background: rgba(168, 85, 247, 0.045);
+
+    color: #70419a;
+}
+
+body.light-theme .bank-policy-item {
+    background: rgba(168, 85, 247, 0.035);
+}
+
+body.light-theme .bank-policy-item strong {
+    color: #7025b0;
+}
+
+body.light-theme .bank-available-balance {
+    background: rgba(168, 85, 247, 0.035);
+}
+
+body.light-theme .bank-available-balance strong {
+    color: #281638;
+}
+
+body.light-theme #bank-panel .form-group {
+    background: rgba(168, 85, 247, 0.025);
+}
+
+body.light-theme #bank-panel input[type="number"] {
+    border-color: rgba(126, 34, 206, 0.18);
+
+    background: #ffffff;
+
+    color: #281638;
+}
+
+body.light-theme #bank-panel input[type="number"]::placeholder {
+    color: #9582a8;
+}
+
+body.light-theme #bank-panel input[type="number"]:focus {
+    background: #ffffff;
+}
+
+body.light-theme #repay-button {
+    background: rgba(168, 85, 247, 0.05);
+
+    color: #7025b0;
+}
+
+body.light-theme #repay-button:disabled {
+    background: #f0ebf5;
+
+    color: #a295b1;
+}
+
+body.light-theme .bank-status-available {
+    color: #247d54;
+}
+
+body.light-theme .bank-status-active {
+    color: #7025b0;
+}
+
+
+/* =========================================================
+   15. RESPONSIVE: TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .bank-balance-card {
+        padding: 23px;
+    }
+
+    .bank-balance-card strong {
+        font-size: 37px;
+    }
+
+    .bank-policy-item {
+        padding: 14px;
+    }
+}
+
+
+/* =========================================================
+   16. RESPONSIVE: MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+    #bank-panel .content-panel-heading {
+        align-items: flex-start;
+    }
+
+    .bank-balance-card {
+        padding: 21px;
+    }
+
+    .bank-balance-card strong {
+        font-size: clamp(30px, 8vw, 39px);
+    }
+
+    .bank-policy-grid {
+        gap: 9px;
+    }
+
+    .bank-policy-item {
+        padding: 13px 12px;
+    }
+
+    .bank-policy-item strong {
+        font-size: 18px;
+    }
+
+    #bank-panel .form-group {
+        padding: 15px;
+    }
+
+    #bank-panel input[type="number"] {
+        min-height: 46px;
+    }
+}
+
+
+/* =========================================================
+   17. RESPONSIVE: SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 390px) {
+    .bank-balance-card {
+        padding: 17px;
+    }
+
+    .bank-balance-card strong {
+        font-size: 30px;
+    }
+
+    .bank-policy-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bank-policy-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .bank-policy-item strong {
+        font-size: 17px;
+    }
+
+    .bank-available-balance {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .bank-available-balance strong {
+        text-align: left;
+    }
+}
+
+
+/* =========================================================
+   18. ACCESSIBILITY
+   ========================================================= */
+
+#bank-panel button:focus-visible,
+#bank-panel input:focus-visible {
+    outline: 2px solid var(--bank-purple-light);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bank-policy-item,
+    .bank-account-status,
+    #bank-panel input[type="number"],
+    #borrow-button,
+    #repay-button {
+        transition: none !important;
+    }
+
+    #borrow-button:active:not(:disabled),
+    #repay-button:active:not(:disabled) {
+        transform: none;
+    }
+}
+```
