@@ -1,0 +1,995 @@
+/* =========================================================
+   Violet Vault - History Styles
+   File: history.css
+   Theme: Dark / Violet Neon
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. History Main Layout
+   --------------------------------------------------------- */
+
+#history-content {
+    width: 100%;
+    min-width: 0;
+    color: #eee7ff;
+}
+
+.history-interface {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+    min-width: 0;
+    animation: historyFadeIn 0.35s ease;
+}
+
+@keyframes historyFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------------------------------------------------------
+   2. Summary Cards
+   --------------------------------------------------------- */
+
+.history-summary,
+.history-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.history-summary-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+    padding: 18px 16px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(143, 76, 255, 0.10),
+            rgba(25, 18, 43, 0.78)
+        );
+
+    border: 1px solid rgba(179, 132, 255, 0.17);
+    border-radius: 15px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 5px 18px rgba(0, 0, 0, 0.12);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.history-summary-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 15px;
+    right: 15px;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(190, 145, 255, 0.7),
+        transparent
+    );
+
+    opacity: 0.5;
+}
+
+.history-summary-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(188, 140, 255, 0.35);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.18),
+        0 0 14px rgba(151, 86, 255, 0.045);
+}
+
+.history-summary-card > span,
+.history-summary-card > p,
+.history-summary-card > small,
+.history-summary-card > label {
+    margin: 0;
+    color: #a79abf;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.history-summary-card strong,
+.history-summary-card .history-summary-value {
+    display: block;
+    color: #f1e9ff;
+    font-size: clamp(19px, 2vw, 26px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    overflow-wrap: anywhere;
+
+    text-shadow: 0 0 15px rgba(178, 119, 255, 0.12);
+}
+
+/* Summary card variants */
+
+.history-summary-card:nth-child(1) strong,
+.history-summary-card:nth-child(1) .history-summary-value {
+    color: #d8b7ff;
+}
+
+.history-summary-card:nth-child(2) strong,
+.history-summary-card:nth-child(2) .history-summary-value {
+    color: #a9a0ff;
+}
+
+.history-summary-card:nth-child(3) strong,
+.history-summary-card:nth-child(3) .history-summary-value {
+    color: #91dfbd;
+}
+
+.history-summary-card:nth-child(4) strong,
+.history-summary-card:nth-child(4) .history-summary-value {
+    color: #8fcaff;
+}
+
+/* Summary count IDs */
+
+#history-total-count,
+#history-draw-count,
+#history-bank-count,
+#history-stock-count {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------
+   3. Search, Filters and Sorting
+   --------------------------------------------------------- */
+
+.history-controls,
+.history-toolbar,
+.history-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.history-search-wrapper {
+    position: relative;
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.history-search-wrapper::before {
+    content: "⌕";
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    z-index: 1;
+
+    color: #a98adf;
+    font-size: 23px;
+    line-height: 1;
+
+    transform: translateY(-54%);
+    pointer-events: none;
+}
+
+#history-search {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 12px 15px 12px 43px;
+
+    color: #f0e8ff;
+    font-family: inherit;
+    font-size: 13px;
+
+    background: rgba(17, 13, 29, 0.82);
+    border: 1px solid rgba(176, 134, 255, 0.19);
+    border-radius: 12px;
+    outline: none;
+
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.12);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+#history-search::placeholder {
+    color: #786c91;
+    opacity: 1;
+}
+
+#history-search:hover {
+    border-color: rgba(179, 132, 255, 0.34);
+}
+
+#history-search:focus {
+    background: rgba(23, 16, 39, 0.95);
+    border-color: #a878ff;
+
+    box-shadow:
+        0 0 0 3px rgba(156, 95, 255, 0.12),
+        0 0 18px rgba(156, 95, 255, 0.06);
+}
+
+#history-filter,
+#history-sort {
+    flex: 0 1 auto;
+    min-width: 132px;
+    min-height: 46px;
+    padding: 11px 36px 11px 13px;
+
+    color: #e5d9ff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    background-color: #171123;
+    border: 1px solid rgba(176, 134, 255, 0.2);
+    border-radius: 12px;
+    outline: none;
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+#history-filter:hover,
+#history-sort:hover {
+    background-color: #211633;
+    border-color: rgba(185, 140, 255, 0.42);
+}
+
+#history-filter:focus,
+#history-sort:focus {
+    border-color: #a878ff;
+    box-shadow: 0 0 0 3px rgba(156, 95, 255, 0.12);
+}
+
+#history-filter option,
+#history-sort option {
+    color: #eee7ff;
+    background: #171123;
+}
+
+.history-interface input,
+.history-interface select,
+.history-interface button {
+    box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------
+   4. Entry List Header
+   --------------------------------------------------------- */
+
+.history-list-header,
+.history-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    width: 100%;
+    padding: 0 2px;
+}
+
+.history-list-header h3,
+.history-list-heading h3,
+.history-list-header h2,
+.history-list-heading h2 {
+    margin: 0;
+    color: #e9ddff;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.35px;
+}
+
+#history-visible-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 27px;
+    padding: 5px 10px;
+
+    color: #c6a8ff;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+
+    background: rgba(159, 99, 255, 0.1);
+    border: 1px solid rgba(173, 124, 255, 0.17);
+    border-radius: 999px;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------
+   5. History List Container
+   --------------------------------------------------------- */
+
+#history-list,
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+/* ---------------------------------------------------------
+   6. Individual History Entry Cards
+   --------------------------------------------------------- */
+
+.history-entry,
+.history-entry-card,
+.history-item,
+.history-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+
+    width: 100%;
+    min-width: 0;
+    padding: 17px 18px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            110deg,
+            rgba(30, 22, 46, 0.92),
+            rgba(19, 15, 30, 0.94)
+        );
+
+    border: 1px solid rgba(169, 125, 241, 0.15);
+    border-radius: 14px;
+
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.history-entry::before,
+.history-entry-card::before,
+.history-item::before,
+.history-card::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 0;
+    width: 3px;
+
+    background: #a777ff;
+    border-radius: 0 4px 4px 0;
+
+    opacity: 0.75;
+}
+
+.history-entry:hover,
+.history-entry-card:hover,
+.history-item:hover,
+.history-card:hover {
+    transform: translateY(-1px);
+
+    background:
+        linear-gradient(
+            110deg,
+            rgba(39, 27, 61, 0.96),
+            rgba(23, 17, 38, 0.98)
+        );
+
+    border-color: rgba(176, 126, 255, 0.34);
+
+    box-shadow:
+        0 7px 22px rgba(0, 0, 0, 0.16),
+        0 0 15px rgba(160, 94, 255, 0.04);
+}
+
+.history-entry-main,
+.history-entry-info,
+.history-item-main,
+.history-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.history-entry-heading,
+.history-entry-title,
+.history-item-title,
+.history-card-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin: 0;
+    color: #f0e8ff;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.history-entry-description,
+.history-entry-details,
+.history-entry-meta,
+.history-item-description,
+.history-card-details {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    color: #9f92b6;
+    font-size: 11px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.history-entry-meta span,
+.history-entry-details span,
+.history-entry-description span {
+    min-width: 0;
+}
+
+.history-entry-date,
+.history-entry-time,
+.history-item-date,
+.history-card-date {
+    display: block;
+    margin-top: 2px;
+
+    color: #786d8d;
+    font-size: 10px;
+    line-height: 1.5;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------
+   7. Amount Display
+   --------------------------------------------------------- */
+
+.history-entry-amount,
+.history-item-amount,
+.history-card-amount,
+.history-amount {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+
+    margin-left: auto;
+    text-align: right;
+
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.history-entry-amount small,
+.history-item-amount small,
+.history-card-amount small,
+.history-amount small {
+    color: #8f829f;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+/* Positive transactions */
+
+.history-entry--positive .history-entry-amount,
+.history-entry--draw .history-entry-amount,
+.history-entry--stock_sell .history-entry-amount,
+.history-entry--repayment .history-entry-amount,
+.history-positive .history-entry-amount,
+.history-entry.positive .history-entry-amount {
+    color: #8be5b8;
+}
+
+/* Spending transactions */
+
+.history-entry--negative .history-entry-amount,
+.history-entry--stock_buy .history-entry-amount,
+.history-negative .history-entry-amount,
+.history-entry.negative .history-entry-amount {
+    color: #ff9cbd;
+}
+
+/* Draw entries */
+
+.history-entry--draw::before,
+.history-entry.draw::before {
+    background: #bb91ff;
+}
+
+/* Loan entries */
+
+.history-entry--loan::before,
+.history-entry.loan::before {
+    background: #78bdff;
+}
+
+/* Repayment entries */
+
+.history-entry--repayment::before,
+.history-entry.repayment::before {
+    background: #80e4c0;
+}
+
+/* Stock purchase entries */
+
+.history-entry--stock_buy::before,
+.history-entry.stock_buy::before {
+    background: #ffb27e;
+}
+
+/* Stock sale entries */
+
+.history-entry--stock_sell::before,
+.history-entry.stock_sell::before {
+    background: #72dfbe;
+}
+
+/* Other transaction types */
+
+.history-entry--other::before,
+.history-entry.other::before {
+    background: #a59bb8;
+}
+
+/* ---------------------------------------------------------
+   8. Type Labels / Badges
+   --------------------------------------------------------- */
+
+.history-type-badge,
+.history-entry-badge,
+.history-badge,
+.history-entry-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+    max-width: 100%;
+    min-height: 21px;
+    padding: 3px 8px;
+
+    color: #c7a6ff;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.4;
+
+    background: rgba(164, 106, 255, 0.11);
+    border: 1px solid rgba(172, 119, 255, 0.17);
+    border-radius: 6px;
+
+    overflow-wrap: anywhere;
+}
+
+.history-entry--draw .history-type-badge,
+.history-entry--draw .history-entry-badge,
+.history-entry--draw .history-badge {
+    color: #d0b0ff;
+    background: rgba(164, 106, 255, 0.12);
+    border-color: rgba(178, 130, 255, 0.22);
+}
+
+.history-entry--loan .history-type-badge,
+.history-entry--loan .history-entry-badge,
+.history-entry--loan .history-badge {
+    color: #9bd2ff;
+    background: rgba(89, 166, 255, 0.1);
+    border-color: rgba(89, 166, 255, 0.2);
+}
+
+.history-entry--repayment .history-type-badge,
+.history-entry--repayment .history-entry-badge,
+.history-entry--repayment .history-badge {
+    color: #8ee8bd;
+    background: rgba(89, 218, 163, 0.09);
+    border-color: rgba(89, 218, 163, 0.2);
+}
+
+.history-entry--stock_buy .history-type-badge,
+.history-entry--stock_buy .history-entry-badge,
+.history-entry--stock_buy .history-badge {
+    color: #ffbe96;
+    background: rgba(255, 153, 104, 0.09);
+    border-color: rgba(255, 153, 104, 0.19);
+}
+
+.history-entry--stock_sell .history-type-badge,
+.history-entry--stock_sell .history-entry-badge,
+.history-entry--stock_sell .history-badge {
+    color: #8ee8bd;
+    background: rgba(89, 218, 163, 0.09);
+    border-color: rgba(89, 218, 163, 0.2);
+}
+
+/* ---------------------------------------------------------
+   9. Empty State
+   --------------------------------------------------------- */
+
+#history-empty,
+.history-empty {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 190px;
+    padding: 30px 20px;
+
+    color: #9e91b4;
+    text-align: center;
+
+    background: rgba(21, 16, 34, 0.65);
+    border: 1px dashed rgba(176, 134, 255, 0.23);
+    border-radius: 15px;
+}
+
+#history-empty strong,
+.history-empty strong {
+    color: #ded0f7;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#history-empty p,
+.history-empty p {
+    max-width: 360px;
+    margin: 0;
+
+    color: #9285a7;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#history-empty:not(:empty) {
+    /* Visibility is controlled by history.js. */
+}
+
+/* ---------------------------------------------------------
+   10. Pagination
+   --------------------------------------------------------- */
+
+.history-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+
+    width: 100%;
+    padding: 6px 0 2px;
+}
+
+#history-page-info {
+    min-width: 85px;
+    color: #bca9da;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+#history-prev-page,
+#history-next-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-width: 94px;
+    min-height: 38px;
+    padding: 9px 15px;
+
+    color: #e5d7ff;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    background: rgba(133, 81, 220, 0.11);
+    border: 1px solid rgba(175, 125, 255, 0.25);
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#history-prev-page:hover:not(:disabled),
+#history-next-page:hover:not(:disabled) {
+    color: #ffffff;
+    background: rgba(148, 87, 255, 0.25);
+    border-color: rgba(192, 151, 255, 0.55);
+
+    box-shadow: 0 0 16px rgba(148, 87, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+#history-prev-page:active:not(:disabled),
+#history-next-page:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+#history-prev-page:disabled,
+#history-next-page:disabled {
+    color: #675a79;
+    background: rgba(30, 23, 42, 0.65);
+    border-color: rgba(135, 110, 169, 0.1);
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* ---------------------------------------------------------
+   11. Footer Note
+   --------------------------------------------------------- */
+
+.history-footer,
+.history-note,
+.history-interface > p {
+    color: #726681;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.history-footer,
+.history-note {
+    margin: -5px 0 0;
+    padding: 12px 14px;
+
+    background: rgba(145, 94, 220, 0.045);
+    border-left: 2px solid rgba(171, 120, 255, 0.28);
+    border-radius: 0 8px 8px 0;
+}
+
+/* ---------------------------------------------------------
+   12. Scrollbar
+   --------------------------------------------------------- */
+
+#history-content * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(158, 107, 234, 0.4) rgba(20, 15, 30, 0.45);
+}
+
+#history-content *::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+#history-content *::-webkit-scrollbar-track {
+    background: rgba(20, 15, 30, 0.45);
+    border-radius: 10px;
+}
+
+#history-content *::-webkit-scrollbar-thumb {
+    background: rgba(158, 107, 234, 0.4);
+    border: 1px solid rgba(20, 15, 30, 0.45);
+    border-radius: 10px;
+}
+
+#history-content *::-webkit-scrollbar-thumb:hover {
+    background: rgba(177, 128, 255, 0.65);
+}
+
+/* ---------------------------------------------------------
+   13. General Focus Accessibility
+   --------------------------------------------------------- */
+
+#history-content button:focus-visible,
+#history-content input:focus-visible,
+#history-content select:focus-visible {
+    outline: 2px solid rgba(190, 145, 255, 0.85);
+    outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------
+   14. Responsive Layout - Tablets
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .history-summary,
+    .history-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .history-controls,
+    .history-toolbar,
+    .history-filters {
+        gap: 10px;
+    }
+
+    .history-search-wrapper {
+        flex-basis: 100%;
+    }
+
+    #history-filter,
+    #history-sort {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .history-entry,
+    .history-entry-card,
+    .history-item,
+    .history-card {
+        gap: 12px;
+        padding: 15px 14px;
+    }
+}
+
+/* ---------------------------------------------------------
+   15. Responsive Layout - Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 560px) {
+    .history-interface {
+        gap: 17px;
+    }
+
+    .history-summary,
+    .history-summary-grid {
+        gap: 9px;
+    }
+
+    .history-summary-card {
+        gap: 7px;
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    .history-summary-card > span,
+    .history-summary-card > p,
+    .history-summary-card > small,
+    .history-summary-card > label {
+        font-size: 10px;
+    }
+
+    .history-summary-card strong,
+    .history-summary-card .history-summary-value {
+        font-size: 20px;
+    }
+
+    #history-search {
+        min-height: 43px;
+        font-size: 12px;
+    }
+
+    #history-filter,
+    #history-sort {
+        min-height: 42px;
+        padding: 10px 28px 10px 10px;
+        font-size: 11px;
+    }
+
+    .history-list-header h3,
+    .history-list-heading h3,
+    .history-list-header h2,
+    .history-list-heading h2 {
+        font-size: 15px;
+    }
+
+    .history-entry,
+    .history-entry-card,
+    .history-item,
+    .history-card {
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 12px;
+    }
+
+    .history-entry-heading,
+    .history-entry-title,
+    .history-item-title,
+    .history-card-title {
+        font-size: 12px;
+    }
+
+    .history-entry-description,
+    .history-entry-details,
+    .history-entry-meta,
+    .history-item-description,
+    .history-card-details {
+        font-size: 10px;
+    }
+
+    .history-entry-amount,
+    .history-item-amount,
+    .history-card-amount,
+    .history-amount {
+        max-width: 42%;
+        font-size: 13px;
+    }
+
+    .history-pagination {
+        gap: 9px;
+    }
+
+    #history-prev-page,
+    #history-next-page {
+        min-width: 78px;
+        min-height: 35px;
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+
+    #history-page-info {
+        min-width: 65px;
+        font-size: 11px;
+    }
+}
+
+/* ---------------------------------------------------------
+   16. Reduced Motion
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .history-interface,
+    .history-summary-card,
+    .history-entry,
+    .history-entry-card,
+    .history-item,
+    .history-card,
+    #history-search,
+    #history-filter,
+    #history-sort,
+    #history-prev-page,
+    #history-next-page {
+        animation: none !important;
+        transition: none !important;
+    }
+}
