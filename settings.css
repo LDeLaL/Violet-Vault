@@ -1,0 +1,1636 @@
+/* =========================================================
+   Violet Vault - Settings Styles
+   File: settings.css
+   Theme: Violet Neon / Dark & Light
+   Compatible with: settings.js
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. Theme Variables
+   --------------------------------------------------------- */
+
+:root {
+    --vv-settings-bg: #100c1b;
+    --vv-settings-panel: #191226;
+    --vv-settings-panel-hover: #211632;
+    --vv-settings-border: rgba(181, 134, 255, 0.18);
+    --vv-settings-border-strong: rgba(190, 145, 255, 0.38);
+    --vv-settings-text: #f0e8ff;
+    --vv-settings-text-secondary: #b0a1c7;
+    --vv-settings-text-muted: #837494;
+    --vv-settings-accent: #b581ff;
+    --vv-settings-accent-light: #d6b8ff;
+    --vv-settings-accent-dark: #7940c8;
+    --vv-settings-green: #83e2b4;
+    --vv-settings-red: #ff91b5;
+    --vv-settings-shadow: rgba(0, 0, 0, 0.35);
+    --vv-settings-overlay: rgba(5, 3, 12, 0.78);
+}
+
+
+/* ---------------------------------------------------------
+   2. Settings Modal Overlay
+   --------------------------------------------------------- */
+
+#settings-modal,
+#settings-overlay,
+#settings-dialog,
+[data-settings-modal],
+.settings-modal,
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 24px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background: var(--vv-settings-overlay);
+
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+#settings-modal[hidden],
+#settings-overlay[hidden],
+#settings-dialog[hidden],
+[data-settings-modal][hidden],
+.settings-modal[hidden],
+.settings-overlay[hidden] {
+    display: none !important;
+}
+
+#settings-modal.active,
+#settings-modal.show,
+#settings-modal.open,
+#settings-modal.is-open,
+#settings-overlay.active,
+#settings-overlay.show,
+#settings-overlay.open,
+#settings-overlay.is-open,
+#settings-dialog.active,
+#settings-dialog.show,
+#settings-dialog.open,
+#settings-dialog.is-open,
+[data-settings-modal].active,
+[data-settings-modal].show,
+[data-settings-modal].open,
+[data-settings-modal].is-open,
+.settings-modal.active,
+.settings-modal.show,
+.settings-modal.open,
+.settings-modal.is-open,
+.settings-overlay.active,
+.settings-overlay.show,
+.settings-overlay.open,
+.settings-overlay.is-open,
+#settings-modal[aria-hidden="false"],
+#settings-overlay[aria-hidden="false"],
+#settings-dialog[aria-hidden="false"],
+[data-settings-modal][aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+
+/* ---------------------------------------------------------
+   3. Main Settings Dialog
+   --------------------------------------------------------- */
+
+.vv-settings-dialog {
+    position: relative;
+
+    display: block;
+
+    width: min(100%, 610px);
+    max-width: 610px;
+    max-height: min(88vh, 820px);
+
+    padding: 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: var(--vv-settings-text);
+
+    background:
+        radial-gradient(
+            ellipse at 5% 0%,
+            rgba(142, 76, 232, 0.13),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #191225 0%,
+            #100c1b 58%,
+            #130d20 100%
+        );
+
+    border: 1px solid rgba(180, 133, 255, 0.29);
+    border-radius: 22px;
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.54),
+        0 0 45px rgba(140, 76, 231, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(159, 104, 239, 0.4) transparent;
+
+    transform: translateY(12px) scale(0.985);
+
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
+}
+
+#settings-modal.active .vv-settings-dialog,
+#settings-modal.show .vv-settings-dialog,
+#settings-modal.open .vv-settings-dialog,
+#settings-overlay.active .vv-settings-dialog,
+#settings-overlay.show .vv-settings-dialog,
+#settings-overlay.open .vv-settings-dialog,
+[data-settings-modal].active .vv-settings-dialog,
+[data-settings-modal].show .vv-settings-dialog,
+[data-settings-modal].open .vv-settings-dialog {
+    transform: translateY(0) scale(1);
+}
+
+.vv-settings-dialog::-webkit-scrollbar {
+    width: 7px;
+}
+
+.vv-settings-dialog::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.vv-settings-dialog::-webkit-scrollbar-thumb {
+    background: rgba(159, 104, 239, 0.4);
+    border-radius: 999px;
+}
+
+
+/* ---------------------------------------------------------
+   4. Generated Settings Content
+   --------------------------------------------------------- */
+
+.vv-settings-generated {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: 28px;
+
+    color: var(--vv-settings-text);
+}
+
+.vv-settings-generated *,
+.vv-settings-generated *::before,
+.vv-settings-generated *::after {
+    box-sizing: border-box;
+}
+
+.vv-settings-generated button,
+.vv-settings-generated input,
+.vv-settings-generated select {
+    font: inherit;
+}
+
+.vv-settings-generated button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ---------------------------------------------------------
+   5. Settings Header
+   --------------------------------------------------------- */
+
+.vv-settings-heading {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    min-width: 0;
+    padding-bottom: 23px;
+
+    border-bottom: 1px solid rgba(179, 134, 255, 0.13);
+}
+
+.vv-settings-heading-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 55px;
+    height: 55px;
+
+    color: #e1c8ff;
+    font-size: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(174, 116, 255, 0.25),
+            rgba(103, 54, 172, 0.12)
+        );
+
+    border: 1px solid rgba(192, 148, 255, 0.28);
+    border-radius: 16px;
+
+    box-shadow:
+        0 0 25px rgba(146, 81, 235, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.vv-settings-heading-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 0;
+}
+
+.vv-settings-eyebrow {
+    color: #b68bea;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.5;
+    letter-spacing: 2.4px;
+}
+
+.vv-settings-heading-text h2 {
+    margin: 0;
+
+    color: #f4edff;
+    font-size: 25px;
+    font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: -0.7px;
+}
+
+.vv-settings-heading-text p {
+    margin: 2px 0 0;
+
+    color: #9e90b4;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.vv-settings-close {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 37px;
+    height: 37px;
+    margin-left: auto;
+    padding: 0;
+
+    color: #a99abf;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1;
+
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(174, 132, 235, 0.16);
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.vv-settings-close:hover {
+    color: #ffffff;
+
+    background: rgba(163, 105, 244, 0.16);
+    border-color: rgba(192, 145, 255, 0.43);
+
+    transform: rotate(90deg);
+}
+
+
+/* ---------------------------------------------------------
+   6. Settings Groups
+   --------------------------------------------------------- */
+
+.vv-settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+
+    min-width: 0;
+}
+
+.vv-settings-group-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.vv-settings-group-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 35px;
+    height: 35px;
+
+    color: #d0b1ff;
+    font-size: 18px;
+
+    background: rgba(164, 105, 255, 0.105);
+    border: 1px solid rgba(176, 124, 255, 0.15);
+    border-radius: 11px;
+}
+
+.vv-settings-group-heading > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 0;
+}
+
+.vv-settings-group-heading h3 {
+    margin: 0;
+
+    color: #e8ddfa;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.5;
+}
+
+.vv-settings-group-heading p {
+    margin: 0;
+
+    color: #8f819f;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+
+/* ---------------------------------------------------------
+   7. Theme Selection Cards
+   --------------------------------------------------------- */
+
+.vv-settings-theme-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.vv-settings-theme-option {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    min-width: 0;
+    padding: 13px;
+
+    color: #e7dcf8;
+    text-align: left;
+
+    background: rgba(27, 20, 42, 0.75);
+    border: 1px solid rgba(174, 128, 243, 0.16);
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.vv-settings-theme-option:hover {
+    background: rgba(44, 30, 67, 0.87);
+    border-color: rgba(185, 137, 255, 0.38);
+
+    transform: translateY(-1px);
+}
+
+.vv-settings-theme-option.selected,
+.vv-settings-theme-option.active {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(120, 75, 184, 0.2),
+            rgba(36, 25, 56, 0.88)
+        );
+
+    border-color: rgba(192, 148, 255, 0.74);
+
+    box-shadow:
+        0 0 0 1px rgba(171, 117, 255, 0.1),
+        0 0 22px rgba(150, 86, 239, 0.09);
+}
+
+.vv-settings-theme-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    width: 100%;
+    height: 87px;
+    padding: 12px;
+
+    overflow: hidden;
+
+    border-radius: 9px;
+    border: 1px solid rgba(173, 132, 226, 0.15);
+}
+
+.vv-settings-theme-preview span {
+    display: block;
+    height: 9px;
+
+    border-radius: 4px;
+}
+
+.vv-preview-dark {
+    background: #100c1b;
+}
+
+.vv-preview-dark span:nth-child(1) {
+    width: 38%;
+    background: #a875f5;
+}
+
+.vv-preview-dark span:nth-child(2) {
+    width: 80%;
+    background: #29203d;
+}
+
+.vv-preview-dark span:nth-child(3) {
+    width: 60%;
+    background: #49336d;
+}
+
+.vv-preview-light {
+    background: #f5f0fc;
+}
+
+.vv-preview-light span:nth-child(1) {
+    width: 38%;
+    background: #8c5ac9;
+}
+
+.vv-preview-light span:nth-child(2) {
+    width: 80%;
+    background: #ddd0ef;
+}
+
+.vv-preview-light span:nth-child(3) {
+    width: 60%;
+    background: #b9a0d9;
+}
+
+.vv-settings-theme-label {
+    display: block;
+
+    color: #e0d4f2;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.vv-settings-theme-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 23px;
+    height: 23px;
+
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+
+    background: #8451ca;
+    border: 1px solid rgba(219, 194, 255, 0.38);
+    border-radius: 50%;
+
+    opacity: 0;
+    transform: scale(0.7);
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.vv-settings-theme-option.selected .vv-settings-theme-check,
+.vv-settings-theme-option.active .vv-settings-theme-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* ---------------------------------------------------------
+   8. Setting Rows
+   --------------------------------------------------------- */
+
+.vv-settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    min-width: 0;
+    padding: 16px 15px;
+
+    background: rgba(27, 20, 42, 0.62);
+    border: 1px solid rgba(170, 125, 237, 0.13);
+    border-radius: 13px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.vv-settings-row + .vv-settings-row {
+    margin-top: -7px;
+}
+
+.vv-settings-row:hover {
+    background: rgba(37, 26, 56, 0.83);
+    border-color: rgba(181, 132, 250, 0.26);
+}
+
+.vv-settings-row-info {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.vv-settings-row-info strong {
+    color: #e9def9;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.5;
+}
+
+.vv-settings-row-info small {
+    color: #9283a7;
+    font-size: 10px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   9. Toggle Switch
+   --------------------------------------------------------- */
+
+.vv-settings-switch {
+    position: relative;
+
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+
+    width: 46px;
+    height: 26px;
+
+    margin-left: 8px;
+}
+
+.vv-settings-switch input {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+
+    white-space: nowrap;
+    opacity: 0;
+}
+
+.vv-settings-switch-track {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+
+    background: #30253f;
+    border: 1px solid rgba(173, 132, 229, 0.18);
+    border-radius: 999px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.vv-settings-switch-track::before {
+    content: "";
+
+    position: absolute;
+    top: 3px;
+    left: 3px;
+
+    width: 18px;
+    height: 18px;
+
+    background: #a89ab9;
+    border-radius: 50%;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+    transition:
+        transform 0.22s ease,
+        background 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.vv-settings-switch input:checked + .vv-settings-switch-track {
+    background:
+        linear-gradient(
+            100deg,
+            #8654d4,
+            #b17cff
+        );
+
+    border-color: rgba(209, 176, 255, 0.68);
+
+    box-shadow:
+        0 0 13px rgba(158, 98, 247, 0.17),
+        inset 0 0 7px rgba(255, 255, 255, 0.05);
+}
+
+.vv-settings-switch input:checked + .vv-settings-switch-track::before {
+    background: #ffffff;
+    transform: translateX(20px);
+
+    box-shadow:
+        0 1px 5px rgba(26, 12, 45, 0.35),
+        0 0 8px rgba(255, 255, 255, 0.12);
+}
+
+.vv-settings-switch input:focus-visible + .vv-settings-switch-track {
+    outline: 2px solid #d2b5ff;
+    outline-offset: 4px;
+}
+
+.vv-settings-switch:hover .vv-settings-switch-track {
+    border-color: rgba(194, 152, 255, 0.48);
+}
+
+
+/* ---------------------------------------------------------
+   10. Save Status
+   --------------------------------------------------------- */
+
+.vv-settings-status {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-width: 0;
+    padding: 13px 14px;
+
+    background: rgba(127, 86, 183, 0.07);
+    border: 1px solid rgba(174, 128, 236, 0.13);
+    border-radius: 11px;
+}
+
+.vv-settings-status-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    color: #8ce2b6;
+    font-size: 12px;
+    font-weight: 900;
+
+    background: rgba(87, 216, 149, 0.1);
+    border: 1px solid rgba(109, 225, 165, 0.14);
+    border-radius: 50%;
+}
+
+.vv-settings-status-text {
+    color: #a99bbb;
+    font-size: 10px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.vv-settings-status-text.is-error,
+#vv-settings-save-status.is-error {
+    color: #ff9db8;
+}
+
+.vv-settings-status-text.is-success,
+#vv-settings-save-status.is-success {
+    color: #9be4bd;
+}
+
+
+/* ---------------------------------------------------------
+   11. Footer
+   --------------------------------------------------------- */
+
+.vv-settings-footer {
+    margin-top: -12px;
+
+    color: #6f627f;
+    font-size: 9px;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   12. Compatibility with Existing Settings Markup
+   --------------------------------------------------------- */
+
+#settings-modal .modal-content,
+#settings-overlay .modal-content,
+#settings-dialog .modal-content,
+[data-settings-modal] .modal-content,
+#settings-modal .settings-content,
+#settings-overlay .settings-content,
+#settings-dialog .settings-content,
+[data-settings-modal] .settings-content,
+#settings-modal .settings-modal-content,
+#settings-overlay .settings-modal-content,
+#settings-dialog .settings-modal-content,
+[data-settings-modal] .settings-modal-content {
+    width: min(100%, 610px);
+    max-width: 610px;
+    max-height: min(88vh, 820px);
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: var(--vv-settings-text);
+
+    background:
+        radial-gradient(
+            ellipse at 5% 0%,
+            rgba(142, 76, 232, 0.12),
+            transparent 42%
+        ),
+        linear-gradient(
+            145deg,
+            #191225,
+            #100c1b
+        );
+
+    border: 1px solid rgba(180, 133, 255, 0.29);
+    border-radius: 22px;
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.54),
+        0 0 45px rgba(140, 76, 231, 0.1);
+}
+
+#settings-modal .settings-header,
+#settings-overlay .settings-header,
+#settings-dialog .settings-header,
+[data-settings-modal] .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: #eee5ff;
+
+    border-bottom-color: rgba(179, 134, 255, 0.14);
+}
+
+#settings-modal .settings-title,
+#settings-overlay .settings-title,
+#settings-dialog .settings-title,
+[data-settings-modal] .settings-title {
+    color: #eee5ff;
+}
+
+#settings-modal .settings-description,
+#settings-overlay .settings-description,
+#settings-dialog .settings-description,
+[data-settings-modal] .settings-description {
+    color: #9485aa;
+}
+
+
+/* ---------------------------------------------------------
+   13. Modal Scrollbars
+   --------------------------------------------------------- */
+
+#settings-modal,
+#settings-overlay,
+#settings-dialog,
+[data-settings-modal],
+.vv-settings-dialog {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(163, 110, 239, 0.4) transparent;
+}
+
+#settings-modal::-webkit-scrollbar,
+#settings-overlay::-webkit-scrollbar,
+#settings-dialog::-webkit-scrollbar,
+[data-settings-modal]::-webkit-scrollbar,
+.vv-settings-dialog::-webkit-scrollbar {
+    width: 7px;
+}
+
+#settings-modal::-webkit-scrollbar-track,
+#settings-overlay::-webkit-scrollbar-track,
+#settings-dialog::-webkit-scrollbar-track,
+[data-settings-modal]::-webkit-scrollbar-track,
+.vv-settings-dialog::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#settings-modal::-webkit-scrollbar-thumb,
+#settings-overlay::-webkit-scrollbar-thumb,
+#settings-dialog::-webkit-scrollbar-thumb,
+[data-settings-modal]::-webkit-scrollbar-thumb,
+.vv-settings-dialog::-webkit-scrollbar-thumb {
+    background: rgba(163, 110, 239, 0.4);
+    border-radius: 999px;
+}
+
+
+/* ---------------------------------------------------------
+   14. Light Theme - Global Foundation
+   --------------------------------------------------------- */
+
+html.vv-theme-light,
+html.violet-theme-light {
+    color-scheme: light;
+
+    --vv-settings-bg: #f7f3fc;
+    --vv-settings-panel: #ffffff;
+    --vv-settings-panel-hover: #f0e8fa;
+    --vv-settings-border: rgba(113, 77, 157, 0.18);
+    --vv-settings-border-strong: rgba(123, 78, 190, 0.38);
+    --vv-settings-text: #2e2241;
+    --vv-settings-text-secondary: #6f6084;
+    --vv-settings-text-muted: #8b7d9e;
+    --vv-settings-accent: #8f5bd1;
+    --vv-settings-accent-light: #b18be7;
+    --vv-settings-accent-dark: #6037a0;
+    --vv-settings-shadow: rgba(73, 48, 104, 0.12);
+    --vv-settings-overlay: rgba(34, 20, 48, 0.38);
+}
+
+html.vv-theme-light body,
+html.violet-theme-light body {
+    color: #302440;
+
+    background-color: #f7f3fc;
+}
+
+
+/* Common application surfaces */
+
+html.vv-theme-light body :is(
+    .sidebar,
+    .left-sidebar,
+    .right-sidebar,
+    .app-sidebar,
+    .sidebar-panel,
+    .topbar,
+    .top-bar,
+    .app-header,
+    .main-header,
+    .header,
+    .main-content,
+    .main-area,
+    .content-area,
+    .content-panel,
+    .draw-panel,
+    .balance-card,
+    .financial-panel,
+    .bank-panel,
+    .stock-panel,
+    .codex-panel,
+    .history-panel,
+    .achievement-panel,
+    .statistics-panel
+),
+html.violet-theme-light body :is(
+    .sidebar,
+    .left-sidebar,
+    .right-sidebar,
+    .app-sidebar,
+    .sidebar-panel,
+    .topbar,
+    .top-bar,
+    .app-header,
+    .main-header,
+    .header,
+    .main-content,
+    .main-area,
+    .content-area,
+    .content-panel,
+    .draw-panel,
+    .balance-card,
+    .financial-panel,
+    .bank-panel,
+    .stock-panel,
+    .codex-panel,
+    .history-panel,
+    .achievement-panel,
+    .statistics-panel
+) {
+    color: #302440;
+
+    background-color: #fbf9ff;
+    border-color: rgba(108, 74, 151, 0.17);
+
+    box-shadow: 0 5px 20px rgba(73, 48, 104, 0.055);
+}
+
+
+/* Common cards */
+
+html.vv-theme-light body :is(
+    .card,
+    .stat-card,
+    .balance-box,
+    .draw-machine,
+    .recent-result,
+    .recent-result-item,
+    .history-entry,
+    .history-entry-card,
+    .history-item,
+    .history-card,
+    .codex-item,
+    .achievement-card,
+    .stock-card,
+    .bank-card
+),
+html.violet-theme-light body :is(
+    .card,
+    .stat-card,
+    .balance-box,
+    .draw-machine,
+    .recent-result,
+    .recent-result-item,
+    .history-entry,
+    .history-entry-card,
+    .history-item,
+    .history-card,
+    .codex-item,
+    .achievement-card,
+    .stock-card,
+    .bank-card
+) {
+    color: #302440;
+
+    background-color: #ffffff;
+    border-color: rgba(112, 79, 151, 0.16);
+
+    box-shadow: 0 4px 18px rgba(73, 48, 104, 0.055);
+}
+
+
+/* Common readable text */
+
+html.vv-theme-light body :is(
+    .section-title,
+    .panel-title,
+    .card-title,
+    .menu-item,
+    .nav-item,
+    .sidebar-menu-item,
+    .page-title,
+    .content-title
+),
+html.violet-theme-light body :is(
+    .section-title,
+    .panel-title,
+    .card-title,
+    .menu-item,
+    .nav-item,
+    .sidebar-menu-item,
+    .page-title,
+    .content-title
+) {
+    color: #352448;
+}
+
+
+/* Common secondary text */
+
+html.vv-theme-light body :is(
+    .description,
+    .subtitle,
+    .muted,
+    .secondary-text,
+    .card-description,
+    .panel-description
+),
+html.violet-theme-light body :is(
+    .description,
+    .subtitle,
+    .muted,
+    .secondary-text,
+    .card-description,
+    .panel-description
+) {
+    color: #81718f;
+}
+
+
+/* Inputs */
+
+html.vv-theme-light body :is(
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select
+),
+html.violet-theme-light body :is(
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select
+) {
+    color: #342545;
+
+    background-color: #ffffff;
+    border-color: rgba(113, 77, 157, 0.22);
+}
+
+html.vv-theme-light body input::placeholder,
+html.vv-theme-light body textarea::placeholder,
+html.violet-theme-light body input::placeholder,
+html.violet-theme-light body textarea::placeholder {
+    color: #a194b0;
+}
+
+
+/* Light mode modal */
+
+html.vv-theme-light .vv-settings-dialog,
+html.violet-theme-light .vv-settings-dialog {
+    color: #332443;
+
+    background:
+        radial-gradient(
+            ellipse at 5% 0%,
+            rgba(169, 117, 238, 0.1),
+            transparent 45%
+        ),
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f8f4fd
+        );
+
+    border-color: rgba(113, 77, 157, 0.23);
+
+    box-shadow:
+        0 30px 80px rgba(61, 39, 86, 0.2),
+        0 0 35px rgba(141, 89, 211, 0.07);
+}
+
+html.vv-theme-light .vv-settings-generated,
+html.violet-theme-light .vv-settings-generated {
+    color: #332443;
+}
+
+html.vv-theme-light .vv-settings-heading,
+html.violet-theme-light .vv-settings-heading {
+    border-bottom-color: rgba(113, 77, 157, 0.15);
+}
+
+html.vv-theme-light .vv-settings-heading-text h2,
+html.violet-theme-light .vv-settings-heading-text h2 {
+    color: #322142;
+}
+
+html.vv-theme-light .vv-settings-heading-text p,
+html.violet-theme-light .vv-settings-heading-text p {
+    color: #84728f;
+}
+
+html.vv-theme-light .vv-settings-group-heading h3,
+html.violet-theme-light .vv-settings-group-heading h3 {
+    color: #3b2a4e;
+}
+
+html.vv-theme-light .vv-settings-group-heading p,
+html.violet-theme-light .vv-settings-group-heading p {
+    color: #84728f;
+}
+
+html.vv-theme-light .vv-settings-row,
+html.violet-theme-light .vv-settings-row {
+    background: rgba(249, 245, 255, 0.92);
+    border-color: rgba(113, 77, 157, 0.15);
+}
+
+html.vv-theme-light .vv-settings-row:hover,
+html.violet-theme-light .vv-settings-row:hover {
+    background: #f1e8fb;
+    border-color: rgba(141, 87, 202, 0.3);
+}
+
+html.vv-theme-light .vv-settings-row-info strong,
+html.violet-theme-light .vv-settings-row-info strong {
+    color: #3a294e;
+}
+
+html.vv-theme-light .vv-settings-row-info small,
+html.violet-theme-light .vv-settings-row-info small {
+    color: #83718f;
+}
+
+html.vv-theme-light .vv-settings-theme-option,
+html.violet-theme-light .vv-settings-theme-option {
+    color: #382649;
+
+    background: #faf7ff;
+    border-color: rgba(113, 77, 157, 0.17);
+}
+
+html.vv-theme-light .vv-settings-theme-option:hover,
+html.violet-theme-light .vv-settings-theme-option:hover {
+    background: #f1e8fb;
+    border-color: rgba(141, 87, 202, 0.34);
+}
+
+html.vv-theme-light .vv-settings-theme-option.selected,
+html.vv-theme-light .vv-settings-theme-option.active,
+html.violet-theme-light .vv-settings-theme-option.selected,
+html.violet-theme-light .vv-settings-theme-option.active {
+    background: #f0e6fc;
+    border-color: rgba(141, 87, 202, 0.57);
+
+    box-shadow: 0 0 0 1px rgba(141, 87, 202, 0.08);
+}
+
+html.vv-theme-light .vv-settings-theme-label,
+html.violet-theme-light .vv-settings-theme-label {
+    color: #3d2b50;
+}
+
+html.vv-theme-light .vv-settings-close,
+html.violet-theme-light .vv-settings-close {
+    color: #77618d;
+
+    background: rgba(136, 85, 187, 0.055);
+    border-color: rgba(113, 77, 157, 0.18);
+}
+
+html.vv-theme-light .vv-settings-close:hover,
+html.violet-theme-light .vv-settings-close:hover {
+    color: #54327f;
+
+    background: rgba(148, 91, 211, 0.12);
+    border-color: rgba(141, 87, 202, 0.4);
+}
+
+html.vv-theme-light .vv-settings-status,
+html.violet-theme-light .vv-settings-status {
+    background: rgba(145, 96, 199, 0.055);
+    border-color: rgba(113, 77, 157, 0.15);
+}
+
+html.vv-theme-light .vv-settings-status-text,
+html.violet-theme-light .vv-settings-status-text {
+    color: #766387;
+}
+
+html.vv-theme-light .vv-settings-status-text.is-success,
+html.violet-theme-light .vv-settings-status-text.is-success {
+    color: #267f58;
+}
+
+html.vv-theme-light .vv-settings-status-text.is-error,
+html.violet-theme-light .vv-settings-status-text.is-error {
+    color: #b33c62;
+}
+
+html.vv-theme-light .vv-settings-footer,
+html.violet-theme-light .vv-settings-footer {
+    color: #9a8aa9;
+}
+
+html.vv-theme-light .vv-settings-modal,
+html.violet-theme-light .vv-settings-modal {
+    color: #332443;
+}
+
+
+/* Light mode statistics panels */
+
+html.vv-theme-light .statistics-section-title,
+html.vv-theme-light .statistics-panel-heading h4,
+html.vv-theme-light .statistics-card-value,
+html.vv-theme-light .statistics-inline-metric strong,
+html.vv-theme-light .statistics-recent-main strong,
+html.violet-theme-light .statistics-section-title,
+html.violet-theme-light .statistics-panel-heading h4,
+html.violet-theme-light .statistics-card-value,
+html.violet-theme-light .statistics-inline-metric strong,
+html.violet-theme-light .statistics-recent-main strong {
+    color: #39264e;
+}
+
+html.vv-theme-light .statistics-panel,
+html.vv-theme-light .statistics-card,
+html.vv-theme-light .statistics-inline-metric,
+html.violet-theme-light .statistics-panel,
+html.violet-theme-light .statistics-card,
+html.violet-theme-light .statistics-inline-metric {
+    color: #39264e;
+
+    background: #ffffff;
+    border-color: rgba(112, 79, 151, 0.17);
+
+    box-shadow: 0 4px 18px rgba(73, 48, 104, 0.055);
+}
+
+html.vv-theme-light .statistics-card-label,
+html.vv-theme-light .statistics-card-note,
+html.vv-theme-light .statistics-section-description,
+html.vv-theme-light .statistics-small-note,
+html.violet-theme-light .statistics-card-label,
+html.violet-theme-light .statistics-card-note,
+html.violet-theme-light .statistics-section-description,
+html.violet-theme-light .statistics-small-note {
+    color: #82718f;
+}
+
+
+/* Light mode history cards */
+
+html.vv-theme-light .history-entry,
+html.vv-theme-light .history-entry-card,
+html.vv-theme-light .history-item,
+html.vv-theme-light .history-card,
+html.violet-theme-light .history-entry,
+html.violet-theme-light .history-entry-card,
+html.violet-theme-light .history-item,
+html.violet-theme-light .history-card {
+    color: #382749;
+
+    background: #ffffff;
+    border-color: rgba(112, 79, 151, 0.17);
+    box-shadow: 0 3px 14px rgba(73, 48, 104, 0.045);
+}
+
+html.vv-theme-light .history-entry-heading,
+html.vv-theme-light .history-entry-title,
+html.vv-theme-light .history-item-title,
+html.vv-theme-light .history-card-title,
+html.violet-theme-light .history-entry-heading,
+html.violet-theme-light .history-entry-title,
+html.violet-theme-light .history-item-title,
+html.violet-theme-light .history-card-title {
+    color: #39264e;
+}
+
+
+/* ---------------------------------------------------------
+   15. Disabled Effects / Animations
+   --------------------------------------------------------- */
+
+.vv-effects-disabled .effect-layer,
+.vv-effects-disabled .effect-particles,
+.vv-effects-disabled .background-particles,
+.vv-effects-disabled .particle-container {
+    display: none !important;
+}
+
+.vv-effects-disabled .vv-special-effect,
+.vv-effects-disabled .vv-particle-effect {
+    animation: none !important;
+    box-shadow: none !important;
+}
+
+.vv-animations-disabled *,
+.vv-animations-disabled *::before,
+.vv-animations-disabled *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+}
+
+html.vv-animations-disabled,
+html.vv-animations-disabled body,
+html.vv-animations-disabled body * {
+    scroll-behavior: auto !important;
+}
+
+
+/* ---------------------------------------------------------
+   16. Keyboard Accessibility
+   --------------------------------------------------------- */
+
+.vv-settings-generated button:focus-visible,
+.vv-settings-generated input:focus-visible,
+.vv-settings-generated select:focus-visible,
+#settings-modal button:focus-visible,
+#settings-overlay button:focus-visible,
+#settings-dialog button:focus-visible,
+[data-settings-modal] button:focus-visible {
+    outline: 2px solid #c7a4ff;
+    outline-offset: 4px;
+}
+
+.vv-settings-generated button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* ---------------------------------------------------------
+   17. Responsive - Tablet
+   --------------------------------------------------------- */
+
+@media (max-width: 650px) {
+    #settings-modal,
+    #settings-overlay,
+    #settings-dialog,
+    [data-settings-modal],
+    .settings-modal,
+    .settings-overlay {
+        align-items: center;
+        padding: 16px;
+    }
+
+    .vv-settings-dialog {
+        width: min(100%, 540px);
+        max-height: 90vh;
+        border-radius: 18px;
+    }
+
+    .vv-settings-generated {
+        gap: 22px;
+        padding: 22px;
+    }
+
+    .vv-settings-heading {
+        gap: 12px;
+        padding-bottom: 19px;
+    }
+
+    .vv-settings-heading-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+        border-radius: 13px;
+    }
+
+    .vv-settings-heading-text h2 {
+        font-size: 22px;
+    }
+
+    .vv-settings-heading-text p {
+        font-size: 10px;
+    }
+
+    .vv-settings-theme-preview {
+        height: 75px;
+    }
+
+    .vv-settings-row {
+        padding: 14px 12px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   18. Responsive - Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 420px) {
+    #settings-modal,
+    #settings-overlay,
+    #settings-dialog,
+    [data-settings-modal],
+    .settings-modal,
+    .settings-overlay {
+        padding: 10px;
+    }
+
+    .vv-settings-dialog {
+        max-height: 93vh;
+        border-radius: 16px;
+    }
+
+    .vv-settings-generated {
+        gap: 20px;
+        padding: 17px;
+    }
+
+    .vv-settings-heading {
+        gap: 10px;
+        padding-bottom: 16px;
+    }
+
+    .vv-settings-heading-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 19px;
+        border-radius: 11px;
+    }
+
+    .vv-settings-eyebrow {
+        font-size: 8px;
+        letter-spacing: 1.7px;
+    }
+
+    .vv-settings-heading-text h2 {
+        font-size: 20px;
+    }
+
+    .vv-settings-heading-text p {
+        font-size: 9px;
+    }
+
+    .vv-settings-close {
+        width: 32px;
+        height: 32px;
+        font-size: 22px;
+    }
+
+    .vv-settings-group {
+        gap: 13px;
+    }
+
+    .vv-settings-group-icon {
+        width: 31px;
+        height: 31px;
+        font-size: 16px;
+    }
+
+    .vv-settings-group-heading h3 {
+        font-size: 12px;
+    }
+
+    .vv-settings-group-heading p {
+        font-size: 9px;
+    }
+
+    .vv-settings-theme-options {
+        gap: 8px;
+    }
+
+    .vv-settings-theme-option {
+        gap: 10px;
+        padding: 9px;
+        border-radius: 11px;
+    }
+
+    .vv-settings-theme-preview {
+        height: 65px;
+        padding: 9px;
+        gap: 6px;
+        border-radius: 7px;
+    }
+
+    .vv-settings-theme-label {
+        font-size: 10px;
+    }
+
+    .vv-settings-theme-check {
+        top: 7px;
+        right: 7px;
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+
+    .vv-settings-row {
+        gap: 10px;
+        padding: 12px 10px;
+        border-radius: 11px;
+    }
+
+    .vv-settings-row-info strong {
+        font-size: 11px;
+    }
+
+    .vv-settings-row-info small {
+        font-size: 9px;
+    }
+
+    .vv-settings-switch {
+        width: 42px;
+        height: 24px;
+    }
+
+    .vv-settings-switch-track::before {
+        top: 3px;
+        left: 3px;
+        width: 16px;
+        height: 16px;
+    }
+
+    .vv-settings-switch input:checked + .vv-settings-switch-track::before {
+        transform: translateX(18px);
+    }
+
+    .vv-settings-status {
+        gap: 9px;
+        padding: 11px;
+    }
+
+    .vv-settings-status-icon {
+        width: 22px;
+        height: 22px;
+        font-size: 11px;
+    }
+
+    .vv-settings-status-text {
+        font-size: 9px;
+    }
+
+    .vv-settings-footer {
+        font-size: 8px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   19. Reduced Motion
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    #settings-modal,
+    #settings-overlay,
+    #settings-dialog,
+    [data-settings-modal],
+    .vv-settings-dialog,
+    .vv-settings-generated *,
+    .vv-settings-generated *::before,
+    .vv-settings-generated *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
