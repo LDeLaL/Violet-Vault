@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    VIOLET VAULT
    Main Controller — script.js
@@ -2080,4 +2079,3 @@
     initialize();
 
 })();
-```
