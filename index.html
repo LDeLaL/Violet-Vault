@@ -1,573 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0b0712">
-    <title>Violet Vault</title>
-
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="codex.css">
-    <link rel="stylesheet" href="effect.css">
-    <link rel="stylesheet" href="achievements.css">
-    <link rel="stylesheet" href="rarity.css">
-    <link rel="stylesheet" href="bank.css">
-    <link rel="stylesheet" href="stock.css">
-    <link rel="stylesheet" href="history.css">
-    <link rel="stylesheet" href="statistics.css">
-    <link rel="stylesheet" href="settings.css">
-
-    <script src="data.js" defer></script>
-    <script src="save.js" defer></script>
-    <script src="economy.js" defer></script>
-    <script src="effect.js" defer></script>
-    <script src="rarity.js" defer></script>
-    <script src="codex.js" defer></script>
-    <script src="achievements.js" defer></script>
-    <script src="bank.js" defer></script>
-    <script src="stock.js" defer></script>
-    <script src="history.js" defer></script>
-    <script src="statistics.js" defer></script>
-    <script src="settings.js" defer></script>
-    <script src="script.js" defer></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#10091e" />
+  <meta name="description" content="가상 화폐를 뽑고, 모으고, 관리하는 Violet Vault." />
+  <title>Violet Vault — Fortune Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="codex.css" />
+  <link rel="stylesheet" href="effect.css" />
+  <link rel="stylesheet" href="achievements.css" />
+  <link rel="stylesheet" href="rarity.css" />
+  <link rel="stylesheet" href="bank.css" />
+  <link rel="stylesheet" href="stock.css" />
+  <link rel="stylesheet" href="history.css" />
+  <link rel="stylesheet" href="statistics.css" />
+  <link rel="stylesheet" href="settings.css" />
 </head>
-
 <body>
-    <div id="particle-background" aria-hidden="true"></div>
-
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="grid-glow" aria-hidden="true"></div>
+  <div class="app-shell">
     <header class="topbar">
-        <div class="brand">
-            <div class="brand-icon">V</div>
-            <div class="brand-text">
-                <h1>VIOLET VAULT</h1>
-                <p>YOUR FORTUNE, YOUR DESTINY</p>
-            </div>
-        </div>
-
-        <div class="topbar-actions">
-            <div class="connection-status">
-                <span class="status-dot"></span>
-                <span>SIMULATION ONLINE</span>
-            </div>
-
-            <button id="settings-button" class="icon-button"
-                    type="button" aria-label="설정" title="설정">
-                ⚙
-            </button>
-        </div>
+      <a class="brand" href="#top" aria-label="Violet Vault 홈">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span class="brand-copy"><strong>VIOLET<span>VAULT</span></strong><small>FORTUNE SIMULATOR</small></span>
+      </a>
+      <div class="topbar-right">
+        <div class="save-indicator"><span class="status-dot"></span><span>자동 저장 중</span></div>
+        <button class="icon-button" id="settings-open" aria-label="설정 열기" title="설정">⚙</button>
+      </div>
     </header>
 
-    <main class="app-layout">
-
-        <!-- 왼쪽: 자산 현황 -->
-        <aside class="sidebar left-sidebar">
-
-            <section class="panel balance-panel">
-                <div class="panel-heading">
-                    <span class="panel-icon">◈</span>
-                    <h2>내 자산</h2>
-                </div>
-
-                <p class="muted-label">CURRENT BALANCE</p>
-                <div class="main-balance">
-                    <span id="balance-value">100</span>
-                    <span class="currency">Q</span>
-                </div>
-
-                <div class="balance-divider"></div>
-
-                <div class="stat-row">
-                    <span>총수익</span>
-                    <strong id="total-income" class="positive">0 Q</strong>
-                </div>
-
-                <div class="stat-row">
-                    <span>총지출</span>
-                    <strong id="total-expenses">0 Q</strong>
-                </div>
-
-                <div class="stat-row">
-                    <span>순자산</span>
-                    <strong id="net-worth">100 Q</strong>
-                </div>
-
-                <div class="stat-row">
-                    <span>현재 부채</span>
-                    <strong id="debt-value">0 Q</strong>
-                </div>
-            </section>
-
-            <section class="panel quick-menu-panel">
-                <div class="panel-heading">
-                    <span class="panel-icon">▤</span>
-                    <h2>금융 메뉴</h2>
-                </div>
-
-                <button class="menu-button active" type="button"
-                        data-panel="draw">
-                    <span>✦</span>
-                    <span>돈 뽑기</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-
-                <button class="menu-button" type="button"
-                        data-panel="codex">
-                    <span>▣</span>
-                    <span>돈 도감</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-
-                <button class="menu-button" type="button"
-                        data-panel="bank">
-                    <span>⌂</span>
-                    <span>은행 · 대출</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-
-                <button class="menu-button" type="button"
-                        data-panel="stock">
-                    <span>⌁</span>
-                    <span>가상 주식</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-
-                <button class="menu-button" type="button"
-                        data-panel="statistics">
-                    <span>▥</span>
-                    <span>통계</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-
-                <button class="menu-button" type="button"
-                        data-panel="history">
-                    <span>◷</span>
-                    <span>거래 기록</span>
-                    <span class="menu-arrow">›</span>
-                </button>
-            </section>
-
-            <section class="panel recent-panel">
-                <div class="panel-heading">
-                    <span class="panel-icon">◷</span>
-                    <h2>최근 당첨</h2>
-                </div>
-
-                <div id="recent-results" class="recent-results">
-                    <p class="empty-message">아직 당첨 기록이 없어.</p>
-                </div>
-            </section>
-
-        </aside>
-
-        <!-- 중앙: 메인 콘텐츠 -->
-        <section class="main-content">
-
-            <section class="welcome-section">
-                <p class="eyebrow">WELCOME TO THE VAULT</p>
-                <h2>운명을 뽑아보세요<span class="purple-dot">.</span></h2>
-                <p class="welcome-description">
-                    작은 행운이 거대한 부를 만들 수도 있습니다.
-                </p>
-            </section>
-
-            <!-- 업적 요약 -->
-            <section class="panel achievement-summary">
-                <div class="achievement-title">
-                    <div>
-                        <p class="eyebrow">YOUR PROGRESS</p>
-                        <h2>업적</h2>
-                    </div>
-
-                    <button id="view-achievements" class="text-button"
-                            type="button" data-panel="achievements">
-                        전체 보기 →
-                    </button>
-                </div>
-
-                <div id="achievement-preview" class="achievement-preview">
-                    <div class="achievement-card">
-                        <span class="achievement-symbol">✧</span>
-                        <div>
-                            <strong>첫걸음</strong>
-                            <p>첫 번째 뽑기를 진행하세요.</p>
-                        </div>
-                        <span class="achievement-progress">0/1</span>
-                    </div>
-
-                    <div class="achievement-card">
-                        <span class="achievement-symbol">◇</span>
-                        <div>
-                            <strong>작은 부자</strong>
-                            <p>누적 수익 100 Q 달성.</p>
-                        </div>
-                        <span class="achievement-progress">0/100</span>
-                    </div>
-
-                    <div class="achievement-card">
-                        <span class="achievement-symbol">♛</span>
-                        <div>
-                            <strong>행운의 시작</strong>
-                            <p>10 Q 이상 당첨되세요.</p>
-                        </div>
-                        <span class="achievement-progress">0/1</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 돈 뽑기 화면 -->
-            <section id="draw-panel" class="panel draw-panel">
-
-                <div class="draw-panel-heading">
-                    <div>
-                        <p class="eyebrow">RANDOM MONEY SYSTEM</p>
-                        <h2>돈 뽑기</h2>
-                    </div>
-
-                    <div class="draw-cost">
-                        <span>1회 비용</span>
-                        <strong>1 Q</strong>
-                    </div>
-                </div>
-
-                <div id="draw-machine" class="draw-machine">
-                    <div class="machine-glow"></div>
-
-                    <div class="machine-label">YOUR REWARD</div>
-
-                    <div id="money-display" class="money-display"
-                         aria-live="polite" aria-atomic="true">
-                        <span id="result-value">???</span>
-                        <span id="result-unit" class="result-unit">Q</span>
-                    </div>
-
-                    <p id="result-message" class="result-message">
-                        버튼을 눌러 운을 시험해 봐!
-                    </p>
-
-                    <div id="rarity-badge" class="rarity-badge">
-                        WAITING
-                    </div>
-                </div>
-
-                <div class="draw-controls">
-                    <button id="draw-button" class="primary-button"
-                            type="button">
-                        <span class="button-sparkle">✦</span>
-                        <span>돈 뽑기</span>
-                        <span class="button-cost">1 Q</span>
-                    </button>
-
-                    <div class="secondary-controls">
-                        <button id="auto-draw-button"
-                                class="secondary-button" type="button">
-                            <span>⟳</span>
-                            자동 뽑기
-                            <span id="auto-draw-status"
-                                  class="control-status">OFF</span>
-                        </button>
-
-                        <button id="instant-draw-button"
-                                class="secondary-button" type="button">
-                            <span>⚡</span>
-                            즉각 뽑기
-                        </button>
-                    </div>
-
-                    <p class="draw-disclaimer">
-                        모든 금액은 가상 화폐이며 실제 현금 가치가 없습니다.
-                    </p>
-                </div>
-            </section>
-
-            <!-- 현재 세션 정보 -->
-            <section class="dashboard-grid">
-
-                <div class="panel mini-stat-card">
-                    <div class="mini-stat-icon">✦</div>
-                    <p>이번 세션 뽑기</p>
-                    <strong id="session-draws">0회</strong>
-                </div>
-
-                <div class="panel mini-stat-card">
-                    <div class="mini-stat-icon">↗</div>
-                    <p>이번 세션 수익</p>
-                    <strong id="session-profit">0 Q</strong>
-                </div>
-
-                <div class="panel mini-stat-card">
-                    <div class="mini-stat-icon">♛</div>
-                    <p>최고 당첨금</p>
-                    <strong id="best-win">0 Q</strong>
-                </div>
-
-            </section>
-
-            <!-- 도감 화면 -->
-            <section id="codex-panel" class="panel content-panel hidden"
-                     hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">COLLECTION</p>
-                        <h2>돈 도감</h2>
-                    </div>
-                    <span id="codex-count">0종 수집</span>
-                </div>
-
-                <p class="section-description">
-                    지금까지 획득한 금액과 희귀도를 확인해 보세요.
-                </p>
-
-                <div id="codex-content" class="codex-content"></div>
-            </section>
-
-            <!-- 업적 전체 화면 -->
-            <section id="achievements-panel"
-                     class="panel content-panel hidden" hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">ACHIEVEMENT SYSTEM</p>
-                        <h2>전체 업적</h2>
-                    </div>
-                    <span id="achievement-count">0개 달성</span>
-                </div>
-
-                <div id="achievements-content"></div>
-            </section>
-
-            <!-- 은행 화면 -->
-            <section id="bank-panel" class="panel content-panel hidden"
-                     hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">VIRTUAL BANK</p>
-                        <h2>은행 · 대출</h2>
-                    </div>
-                    <span class="bank-status">무이자</span>
-                </div>
-
-                <div class="bank-balance-card">
-                    <p>현재 갚아야 할 금액</p>
-                    <strong id="bank-debt">0 Q</strong>
-                    <p>이자 없음 · 상환 기한 없음</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="loan-amount">대출 금액 (Q)</label>
-                    <input id="loan-amount" type="number"
-                           min="1" step="1" placeholder="대출할 금액">
-                    <button id="borrow-button" class="primary-button"
-                            type="button">대출받기</button>
-                </div>
-
-                <div class="form-group">
-                    <label for="repay-amount">상환 금액 (Q)</label>
-                    <input id="repay-amount" type="number"
-                           min="1" step="1" placeholder="갚을 금액">
-                    <button id="repay-button" class="secondary-button"
-                            type="button">상환하기</button>
-                </div>
-            </section>
-
-            <!-- 주식 화면 -->
-            <section id="stock-panel" class="panel content-panel hidden"
-                     hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">VIRTUAL EXCHANGE</p>
-                        <h2>가상 주식</h2>
-                    </div>
-                    <span class="market-status">SIMULATED MARKET</span>
-                </div>
-
-                <div class="stock-summary">
-                    <div>
-                        <p>주식 평가 금액</p>
-                        <strong id="stock-portfolio-value">0 Q</strong>
-                    </div>
-                    <div>
-                        <p>확정 손익</p>
-                        <strong id="stock-realized-profit">0 Q</strong>
-                    </div>
-                </div>
-
-                <div id="stock-list" class="stock-list"></div>
-
-                <h3 class="subsection-title">내 보유 주식</h3>
-                <div id="stock-portfolio" class="stock-portfolio"></div>
-            </section>
-
-            <!-- 통계 화면 -->
-            <section id="statistics-panel"
-                     class="panel content-panel hidden" hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">YOUR NUMBERS</p>
-                        <h2>통계</h2>
-                    </div>
-                </div>
-
-                <div id="statistics-content" class="statistics-grid"></div>
-            </section>
-
-            <!-- 거래 기록 화면 -->
-            <section id="history-panel"
-                     class="panel content-panel hidden" hidden>
-                <div class="content-panel-heading">
-                    <div>
-                        <p class="eyebrow">TRANSACTION LOG</p>
-                        <h2>거래 기록</h2>
-                    </div>
-                </div>
-
-                <div id="history-content" class="history-content"></div>
-            </section>
-
+    <div class="workspace" id="top">
+      <aside class="left-rail">
+        <section class="panel wallet-panel">
+          <div class="panel-eyebrow"><span class="eyebrow-dot"></span> MY WALLET</div>
+          <p class="muted-label">현재 보유 금액</p>
+          <div class="wallet-balance"><span id="balance-value">100</span><small>Q</small></div>
+          <div class="wallet-divider"></div>
+          <div class="wallet-stat"><span>총 당첨금</span><strong id="earned-value">0 <small>Q</small></strong></div>
+          <div class="wallet-stat"><span>총 지출</span><strong id="spent-value">0 <small>Q</small></strong></div>
+          <div class="wallet-stat"><span>순수익</span><strong id="profit-value" class="positive">0 <small>Q</small></strong></div>
+          <div class="wallet-foot"><span>◈</span> 모든 금액은 가상 화폐예요</div>
         </section>
 
-        <!-- 오른쪽: 희귀도 -->
-        <aside class="sidebar right-sidebar">
+        <section class="panel last-win-panel">
+          <div class="section-heading"><div><span class="heading-kicker">LATEST DROP</span><h2>최근 당첨</h2></div><span class="heading-icon">✦</span></div>
+          <div class="last-win-content" id="last-win-content">
+            <div class="empty-orb">?</div><div><strong>아직 기록이 없어</strong><p>첫 뽑기의 주인공이 되어봐.</p></div>
+          </div>
+          <div class="small-stat-row"><span>뽑기 횟수</span><strong id="draw-count">0회</strong></div>
+          <div class="small-stat-row"><span>최고 당첨금</span><strong id="best-prize">—</strong></div>
+        </section>
 
-            <section class="panel rarity-panel">
-                <div class="panel-heading">
-                    <span class="panel-icon">◇</span>
-                    <h2>희귀도</h2>
-                </div>
+        <section class="panel quick-links-panel">
+          <div class="section-heading"><div><span class="heading-kicker">QUICK ACCESS</span><h2>바로가기</h2></div></div>
+          <button class="quick-link" data-open="achievements"><span class="quick-link-icon">✧</span><span>업적</span><span class="quick-arrow">↗</span></button>
+          <button class="quick-link" data-open="codex"><span class="quick-link-icon">▦</span><span>돈 도감</span><span class="quick-arrow">↗</span></button>
+          <button class="quick-link" data-open="bank"><span class="quick-link-icon">⌂</span><span>보라 은행</span><span class="quick-arrow">↗</span></button>
+          <button class="quick-link" data-open="stock"><span class="quick-link-icon">⌁</span><span>가상 주식</span><span class="quick-arrow">↗</span></button>
+          <button class="quick-link" data-open="statistics"><span class="quick-link-icon">▥</span><span>통계 센터</span><span class="quick-arrow">↗</span></button>
+        </section>
+        <p class="rail-note">VIOLET VAULT <span>•</span> v0.1</p>
+      </aside>
 
-                <p class="section-description">
-                    높은 등급일수록 더 특별한 보상을 기대할 수 있어.
-                </p>
-
-                <div id="rarity-list" class="rarity-list">
-                    <div class="rarity-row rarity-common">
-                        <span class="rarity-dot"></span>
-                        <span>Common</span>
-                        <span class="rarity-range">1~10 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-uncommon">
-                        <span class="rarity-dot"></span>
-                        <span>Uncommon</span>
-                        <span class="rarity-range">11~25 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-rare">
-                        <span class="rarity-dot"></span>
-                        <span>Rare</span>
-                        <span class="rarity-range">26~45 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-epic">
-                        <span class="rarity-dot"></span>
-                        <span>Epic</span>
-                        <span class="rarity-range">46~65 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-legendary">
-                        <span class="rarity-dot"></span>
-                        <span>Legendary</span>
-                        <span class="rarity-range">66~85 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-mythic">
-                        <span class="rarity-dot"></span>
-                        <span>Mythic</span>
-                        <span class="rarity-range">86~99 Q</span>
-                    </div>
-
-                    <div class="rarity-row rarity-ultimate">
-                        <span class="rarity-dot"></span>
-                        <span>Ultimate</span>
-                        <span class="rarity-range">100 Q</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel luck-panel">
-                <div class="panel-heading">
-                    <span class="panel-icon">☄</span>
-                    <h2>행운 기록</h2>
-                </div>
-
-                <div class="luck-stat">
-                    <span>최고 당첨</span>
-                    <strong id="sidebar-best-win">0 Q</strong>
-                </div>
-
-                <div class="luck-stat">
-                    <span>전체 뽑기</span>
-                    <strong id="total-draws">0회</strong>
-                </div>
-
-                <div class="luck-stat">
-                    <span>도감 수집률</span>
-                    <strong id="codex-completion">0%</strong>
-                </div>
-            </section>
-
-        </aside>
-
-    </main>
-
-    <!-- 알림 -->
-    <div id="toast-container" class="toast-container"
-         aria-live="polite" aria-atomic="false"></div>
-
-    <!-- 업적 달성 알림 -->
-    <div id="achievement-notification"
-         class="achievement-notification hidden" hidden>
-        <span class="notification-icon">🏆</span>
-        <div>
-            <p>ACHIEVEMENT UNLOCKED</p>
-            <strong id="notification-achievement-name">업적 달성!</strong>
+      <main class="main-column">
+        <div class="welcome-row">
+          <div><p class="eyebrow-line">YOUR LUCK, YOUR LEGACY</p><h1>오늘은 얼마나<br /><span>뽑힐 것 같아?</span></h1></div>
+          <div class="welcome-orb" aria-hidden="true"><span>✦</span></div>
         </div>
-    </div>
 
-    <!-- 설정 모달 -->
-    <div id="settings-modal" class="modal hidden" hidden>
-        <div class="modal-backdrop" data-close-modal="settings"></div>
-
-        <section class="modal-card" role="dialog"
-                 aria-modal="true" aria-labelledby="settings-title">
-            <button id="close-settings" class="modal-close"
-                    type="button" aria-label="닫기">×</button>
-
-            <p class="eyebrow">CUSTOMIZATION</p>
-            <h2 id="settings-title">설정</h2>
-
-            <label class="setting-row" for="effects-toggle">
-                <span>
-                    <strong>시각 효과</strong>
-                    <small>파티클 및 당첨 연출</small>
-                </span>
-                <input id="effects-toggle" type="checkbox" checked>
-            </label>
-
-            <label class="setting-row" for="animations-toggle">
-                <span>
-                    <strong>애니메이션</strong>
-                    <small>뽑기 애니메이션 사용</small>
-                </span>
-                <input id="animations-toggle" type="checkbox" checked>
-            </label>
-
-            <div class="settings-actions">
-                <button id="export-save-button"
-                        class="secondary-button" type="button">
-                    데이터 백업
-                </button>
-
-                <button id="reset-save-button"
-                        class="danger-button" type="button">
-                    데이터 초기화
-                </button>
-            </div>
+        <section class="draw-card" id="draw-card">
+          <div class="draw-card-top"><span class="live-tag"><span></span> FORTUNE DRAW</span><span class="draw-cost">1회 비용 <strong>1Q</strong></span></div>
+          <div class="draw-intro"><h2>Violet <span>Draw</span></h2><p>운명을 열어봐. 다음 숫자는 네 편일지도 몰라.</p></div>
+          <div class="result-stage" id="result-stage">
+            <div class="result-scanline"></div><div class="result-corner corner-tl"></div><div class="result-corner corner-tr"></div><div class="result-corner corner-bl"></div><div class="result-corner corner-br"></div>
+            <span class="result-overline" id="result-overline">YOUR NEXT FORTUNE</span>
+            <div class="result-number-wrap"><span class="result-number" id="result-number">—</span><span class="result-unit">Q</span></div>
+            <div class="result-rarity rarity-common" id="result-rarity">READY TO DRAW</div>
+            <p class="result-caption" id="result-caption">1Q부터 100Q까지, 오늘의 행운을 확인해 봐.</p>
+          </div>
+          <button class="draw-button" id="draw-button"><span class="draw-button-spark">✦</span><span>돈 뽑기</span><small>1 Q</small><span class="draw-button-arrow">↗</span></button>
+          <div class="secondary-actions"><button class="secondary-button" id="auto-button"><span class="button-icon">⟳</span><span>자동 뽑기</span><small>반복</small></button><button class="secondary-button instant-button" id="instant-button"><span class="button-icon">ϟ</span><span>즉각 뽑기</span><small>빠르게</small></button></div>
+          <div class="draw-footnote"><span>◇</span> 뽑기 비용은 결과와 관계없이 1Q야. <span class="footnote-right">최대 당첨 <strong>100Q</strong></span></div>
         </section>
+
+        <section class="history-section panel">
+          <div class="section-heading"><div><span class="heading-kicker">RECENT ACTIVITY</span><h2>최근 뽑기 기록</h2></div><button class="text-button" data-open="history">전체 기록 <span>↗</span></button></div>
+          <div class="history-list" id="history-list"><div class="history-empty"><span>◷</span> 뽑기를 시작하면 기록이 여기에 쌓여.</div></div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <section class="panel rarity-panel">
+          <div class="section-heading"><div><span class="heading-kicker">RARITY INDEX</span><h2>희귀도</h2></div><span class="tiny-gem">◆</span></div>
+          <p class="panel-description">당첨금이 클수록 더 높은 등급!</p>
+          <div class="rarity-list" id="rarity-list"></div>
+          <button class="outline-button" data-open="codex">도감에서 전체 보기 <span>↗</span></button>
+        </section>
+        <section class="panel luck-panel">
+          <div class="section-heading"><div><span class="heading-kicker">YOUR RECORD</span><h2>오늘의 기록</h2></div><span class="record-star">✧</span></div>
+          <div class="record-highlight"><div class="record-icon">✦</div><div><span>가장 큰 행운</span><strong id="record-best">— <small>Q</small></strong></div></div>
+          <div class="record-divider"></div>
+          <div class="record-line"><span>수집한 종류</span><strong id="record-codex">0 <small>/ 100</small></strong></div>
+          <div class="mini-progress"><span id="codex-progress"></span></div>
+          <div class="record-line"><span>업적 달성</span><strong id="record-achievements">0 <small>/ 5</small></strong></div>
+          <div class="mini-progress"><span id="achievement-progress"></span></div>
+        </section>
+        <section class="quote-card"><span class="quote-mark">“</span><p>행운은 준비된<br />사람에게 찾아온다.</p><small>— THE VAULT NOTE</small><span class="quote-orbit orbit-a"></span><span class="quote-orbit orbit-b"></span></section>
+      </aside>
     </div>
+    <footer class="footer"><span>© VIOLET VAULT</span><span>가상 화폐 시뮬레이터 <i>·</i> 실제 금전 거래 없음</span><button id="footer-reset" type="button">데이터 설정</button></footer>
+  </div>
 
-    <footer class="site-footer">
-        <p>VIOLET VAULT</p>
-        <p>Virtual currency only. No real money involved.</p>
-    </footer>
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true">
+    <section class="modal-window" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-header"><div><span class="heading-kicker" id="modal-kicker">VIOLET VAULT</span><h2 id="modal-title">패널</h2></div><button class="icon-button modal-close" id="modal-close" aria-label="닫기">×</button></header>
+      <div class="modal-content" id="modal-content"></div>
+    </section>
+  </div>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+  <div class="particle-layer" id="particle-layer" aria-hidden="true"></div>
 
+  <script defer src="data.js"></script>
+  <script defer src="save.js"></script>
+  <script defer src="economy.js"></script>
+  <script defer src="rarity.js"></script>
+  <script defer src="effect.js"></script>
+  <script defer src="codex.js"></script>
+  <script defer src="achievements.js"></script>
+  <script defer src="history.js"></script>
+  <script defer src="statistics.js"></script>
+  <script defer src="bank.js"></script>
+  <script defer src="stock.js"></script>
+  <script defer src="settings.js"></script>
+  <script defer src="script.js"></script>
 </body>
 </html>
