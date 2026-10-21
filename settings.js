@@ -1,29 +1,16 @@
 /* =========================================================
-   Violet Vault - Settings System
-   File: settings.js
-
-   Features:
-   - Dark / Light theme
-   - Visual effects toggle
-   - Animation toggle
-   - Persistent settings
-   - Keyboard accessibility
-   - Modal open / close
-   - Compatibility with VioletVaultApp
-   - Compatibility with VioletVaultSave
+   VIOLET VAULT
+   Settings System — settings.js
+   Compatible with save.js, script.js, effect.js and data.js
    ========================================================= */
-
-(function () {
+(() => {
     "use strict";
 
-    /* -----------------------------------------------------
-       1. Configuration
-       ----------------------------------------------------- */
-
+    const DATA = window.VioletVaultData || {};
     const DEFAULT_SETTINGS = {
         theme: "dark",
-        effectsEnabled: true,
-        animationsEnabled: true
+        effectsEnabled: DATA.DEFAULT_EFFECTS_ENABLED !== false,
+        animationsEnabled: DATA.DEFAULT_ANIMATIONS_ENABLED !== false
     };
 
     const OPEN_BUTTON_SELECTORS = [
@@ -64,7 +51,6 @@
             "[data-violet-setting='theme']",
             "[data-setting='theme']"
         ],
-
         effectsEnabled: [
             "#vv-setting-effects",
             "#settings-effects",
@@ -74,7 +60,6 @@
             "[data-violet-setting='effects']",
             "[data-setting='effects']"
         ],
-
         animationsEnabled: [
             "#vv-setting-animations",
             "#settings-animations",
@@ -88,67 +73,55 @@
 
     let app = null;
     let modal = null;
-    let generatedModal = false;
     let initialized = false;
     let lastFocusedElement = null;
     let saveStatusTimer = null;
+    let keyboardEventsBound = false;
+    let delegatedOpenEventsBound = false;
 
+    const $ = (id) => document.getElementById(id);
 
-    /* -----------------------------------------------------
-       2. Utility Functions
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       1. Utilities
+       --------------------------------------------------------- */
 
     function escapeHTML(value) {
-        return String(value ?? "").replace(
-            /[&<>"']/g,
-            function (character) {
-                const entities = {
-                    "&": "&amp;",
-                    "<": "&lt;",
-                    ">": "&gt;",
-                    '"': "&quot;",
-                    "'": "&#39;"
-                };
-
-                return entities[character];
-            }
-        );
+        return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        })[character]);
     }
-
 
     function queryFirst(selectors, root = document) {
         for (const selector of selectors) {
             try {
                 const element = root.querySelector(selector);
-
-                if (element) {
-                    return element;
-                }
-            } catch (error) {
-                // Ignore invalid selectors and continue searching.
+                if (element) return element;
+            } catch (_) {
+                // Skip an invalid selector without breaking settings.
             }
         }
-
         return null;
     }
-
 
     function queryAllUnique(selectors, root = document) {
         const found = new Set();
 
-        selectors.forEach(function (selector) {
+        for (const selector of selectors) {
             try {
-                root.querySelectorAll(selector).forEach(function (element) {
+                root.querySelectorAll(selector).forEach((element) => {
                     found.add(element);
                 });
-            } catch (error) {
-                // Ignore invalid selectors.
+            } catch (_) {
+                // Skip an invalid selector.
             }
-        });
+        }
 
-        return Array.from(found);
+        return [...found];
     }
-
 
     function normalizeTheme(theme) {
         return String(theme || "").toLowerCase() === "light"
@@ -156,43 +129,18 @@
             : "dark";
     }
 
-
     function normalizeBoolean(value, fallback) {
-        if (typeof value === "boolean") {
-            return value;
-        }
-
-        if (value === "true" || value === 1) {
-            return true;
-        }
-
-        if (value === "false" || value === 0) {
-            return false;
-        }
-
+        if (typeof value === "boolean") return value;
+        if (value === "true" || value === 1 || value === "1") return true;
+        if (value === "false" || value === 0 || value === "0") return false;
         return fallback;
     }
 
-
-    function getDocumentRoot() {
-        return document.documentElement;
-    }
-
-
-    function getBody() {
-        return document.body;
-    }
-
-
-    /* -----------------------------------------------------
-       3. App State
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       2. Application state compatibility
+       --------------------------------------------------------- */
 
     function getApp() {
-        if (app) {
-            return app;
-        }
-
         if (window.VioletVaultApp) {
             app = window.VioletVaultApp;
         }
@@ -200,39 +148,41 @@
         return app;
     }
 
-
     function getState() {
         const currentApp = getApp();
 
-        if (
-            currentApp &&
-            typeof currentApp.getState === "function"
-        ) {
-            try {
-                const state = currentApp.getState();
+        const stores = [
+            currentApp,
+            window.SaveStore,
+            window.VioletVaultSave
+        ];
 
-                if (state && typeof state === "object") {
-                    return state;
+        for (const store of stores) {
+            if (store && typeof store.getState === "function") {
+                try {
+                    const state = store.getState();
+
+                    if (state && typeof state === "object") {
+                        return state;
+                    }
+                } catch (error) {
+                    console.warn(
+                        "[VioletSettings] 상태 읽기 실패:",
+                        error
+                    );
                 }
-            } catch (error) {
-                console.warn(
-                    "[VioletSettings] Unable to retrieve app state:",
-                    error
-                );
             }
-        }
 
-        if (
-            currentApp &&
-            currentApp.state &&
-            typeof currentApp.state === "object"
-        ) {
-            return currentApp.state;
+            if (
+                store?.state &&
+                typeof store.state === "object"
+            ) {
+                return store.state;
+            }
         }
 
         return null;
     }
-
 
     function ensureSettingsObject(state) {
         if (!state || typeof state !== "object") {
@@ -246,69 +196,53 @@
             state.settings = {};
         }
 
-        if (
-            !Object.prototype.hasOwnProperty.call(
-                state.settings,
-                "theme"
-            )
-        ) {
-            state.settings.theme = DEFAULT_SETTINGS.theme;
-        }
+        const settings = state.settings;
 
-        if (
-            !Object.prototype.hasOwnProperty.call(
-                state.settings,
-                "effectsEnabled"
-            )
-        ) {
-            state.settings.effectsEnabled =
-                DEFAULT_SETTINGS.effectsEnabled;
-        }
-
-        if (
-            !Object.prototype.hasOwnProperty.call(
-                state.settings,
-                "animationsEnabled"
-            )
-        ) {
-            state.settings.animationsEnabled =
-                DEFAULT_SETTINGS.animationsEnabled;
-        }
-
-        state.settings.theme = normalizeTheme(
-            state.settings.theme
+        settings.theme = normalizeTheme(
+            settings.theme ?? DEFAULT_SETTINGS.theme
         );
 
-        state.settings.effectsEnabled = normalizeBoolean(
-            state.settings.effectsEnabled,
+        settings.effectsEnabled = normalizeBoolean(
+            settings.effectsEnabled,
             DEFAULT_SETTINGS.effectsEnabled
         );
 
-        state.settings.animationsEnabled = normalizeBoolean(
-            state.settings.animationsEnabled,
+        // Older saves may use "animations" instead of "animationsEnabled".
+        const animationValue =
+            settings.animationsEnabled ?? settings.animations;
+
+        settings.animationsEnabled = normalizeBoolean(
+            animationValue,
             DEFAULT_SETTINGS.animationsEnabled
         );
 
-        return state.settings;
-    }
+        settings.animations = settings.animationsEnabled;
 
+        return settings;
+    }
 
     function getSettings() {
         const state = getState();
 
         if (!state) {
-            return Object.assign({}, DEFAULT_SETTINGS);
+            return { ...DEFAULT_SETTINGS };
         }
 
-        return ensureSettingsObject(state);
+        return ensureSettingsObject(state) || {
+            ...DEFAULT_SETTINGS
+        };
     }
-
 
     function getSetting(name) {
         const settings = getSettings();
 
-        if (!settings) {
-            return DEFAULT_SETTINGS[name];
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                DEFAULT_SETTINGS,
+                name
+            )
+        ) {
+            return undefined;
         }
 
         if (name === "theme") {
@@ -322,20 +256,15 @@
             );
         }
 
-        if (name === "animationsEnabled") {
-            return normalizeBoolean(
-                settings.animationsEnabled,
-                DEFAULT_SETTINGS.animationsEnabled
-            );
-        }
-
-        return settings[name];
+        return normalizeBoolean(
+            settings.animationsEnabled ?? settings.animations,
+            DEFAULT_SETTINGS.animationsEnabled
+        );
     }
 
-
-    /* -----------------------------------------------------
-       4. Save Settings
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       3. Save settings
+       --------------------------------------------------------- */
 
     function saveSettings() {
         const state = getState();
@@ -344,25 +273,12 @@
             return false;
         }
 
-        const currentApp = getApp();
-
         try {
             if (
-                currentApp &&
-                typeof currentApp.save === "function"
+                window.SaveStore &&
+                typeof window.SaveStore.save === "function"
             ) {
-                currentApp.save();
-
-                return true;
-            }
-
-            if (
-                currentApp &&
-                typeof currentApp.saveState === "function"
-            ) {
-                currentApp.saveState();
-
-                return true;
+                return window.SaveStore.save(state) !== false;
             }
 
             if (
@@ -371,18 +287,31 @@
             ) {
                 return window.VioletVaultSave.save(state) !== false;
             }
+
+            const currentApp = getApp();
+
+            if (
+                currentApp &&
+                typeof currentApp.saveState === "function"
+            ) {
+                return currentApp.saveState() !== false;
+            }
+
+            if (
+                currentApp &&
+                typeof currentApp.save === "function"
+            ) {
+                return currentApp.save() !== false;
+            }
         } catch (error) {
             console.error(
-                "[VioletSettings] Failed to save settings:",
+                "[VioletSettings] 설정 저장 실패:",
                 error
             );
-
-            return false;
         }
 
         return false;
     }
-
 
     function refreshApp() {
         const currentApp = getApp();
@@ -395,127 +324,69 @@
                 currentApp.render();
             } catch (error) {
                 console.warn(
-                    "[VioletSettings] App refresh failed:",
-                    error
-                );
-            }
-
-            return;
-        }
-
-        if (
-            currentApp &&
-            typeof currentApp.renderAll === "function"
-        ) {
-            try {
-                currentApp.renderAll();
-            } catch (error) {
-                console.warn(
-                    "[VioletSettings] App refresh failed:",
+                    "[VioletSettings] 화면 갱신 실패:",
                     error
                 );
             }
         }
     }
 
-
-    /* -----------------------------------------------------
-       5. Theme Application
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       4. Apply settings to the page and companion modules
+       --------------------------------------------------------- */
 
     function applyTheme(theme) {
-        const normalizedTheme = normalizeTheme(theme);
-        const root = getDocumentRoot();
-        const body = getBody();
+        const value = normalizeTheme(theme);
+        const root = document.documentElement;
+        const body = document.body;
 
-        root.dataset.violetTheme = normalizedTheme;
-        root.dataset.theme = normalizedTheme;
-        root.classList.toggle(
-            "vv-theme-light",
-            normalizedTheme === "light"
-        );
+        root.dataset.theme = value;
+        root.dataset.violetTheme = value;
+        root.style.colorScheme = value;
 
-        root.classList.toggle(
-            "vv-theme-dark",
-            normalizedTheme === "dark"
-        );
+        ["vv-theme-light", "violet-theme-light"].forEach((name) => {
+            root.classList.toggle(name, value === "light");
+            body?.classList.toggle(name, value === "light");
+        });
 
-        root.classList.toggle(
-            "violet-theme-light",
-            normalizedTheme === "light"
-        );
-
-        root.classList.toggle(
-            "violet-theme-dark",
-            normalizedTheme === "dark"
-        );
-
-        root.style.colorScheme = normalizedTheme;
+        ["vv-theme-dark", "violet-theme-dark"].forEach((name) => {
+            root.classList.toggle(name, value === "dark");
+            body?.classList.toggle(name, value === "dark");
+        });
 
         if (body) {
-            body.dataset.violetTheme = normalizedTheme;
-            body.dataset.theme = normalizedTheme;
-
-            body.classList.toggle(
-                "vv-theme-light",
-                normalizedTheme === "light"
-            );
-
-            body.classList.toggle(
-                "vv-theme-dark",
-                normalizedTheme === "dark"
-            );
-
-            body.classList.toggle(
-                "violet-theme-light",
-                normalizedTheme === "light"
-            );
-
-            body.classList.toggle(
-                "violet-theme-dark",
-                normalizedTheme === "dark"
-            );
+            body.dataset.theme = value;
+            body.dataset.violetTheme = value;
         }
 
         document.dispatchEvent(
             new CustomEvent("violetvault:themechange", {
-                detail: {
-                    theme: normalizedTheme
-                }
+                detail: { theme: value }
             })
         );
     }
 
-
-    /* -----------------------------------------------------
-       6. Effects and Animation Application
-       ----------------------------------------------------- */
-
     function applyEffectsSetting(enabled) {
-        const root = getDocumentRoot();
-        const body = getBody();
+        const value = Boolean(enabled);
 
-        root.classList.toggle(
+        document.documentElement.classList.toggle(
             "vv-effects-disabled",
-            !enabled
+            !value
         );
 
-        if (body) {
-            body.classList.toggle(
-                "vv-effects-disabled",
-                !enabled
-            );
-        }
+        document.body?.classList.toggle(
+            "vv-effects-disabled",
+            !value
+        );
 
-        if (
-            window.VioletEffects &&
-            typeof window.VioletEffects.setEnabled === "function"
-        ) {
+        const effects = window.VioletEffects || window.Effects;
+
+        if (typeof effects?.setEnabled === "function") {
             try {
-                window.VioletEffects.setEnabled(enabled);
+                effects.setEnabled(value);
             } catch (error) {
                 console.warn(
-                    "[VioletSettings] Unable to update visual effects:",
+                    "[VioletSettings] 효과 설정 적용 실패:",
                     error
                 );
             }
@@ -523,52 +394,36 @@
 
         document.dispatchEvent(
             new CustomEvent("violetvault:effectschange", {
-                detail: {
-                    enabled: Boolean(enabled)
-                }
+                detail: { enabled: value }
             })
         );
     }
 
-
     function applyAnimationsSetting(enabled) {
-        const root = getDocumentRoot();
-        const body = getBody();
+        const value = Boolean(enabled);
 
-        root.classList.toggle(
+        document.documentElement.classList.toggle(
             "vv-animations-disabled",
-            !enabled
+            !value
         );
 
-        if (body) {
-            body.classList.toggle(
-                "vv-animations-disabled",
-                !enabled
-            );
-        }
+        document.body?.classList.toggle(
+            "vv-animations-disabled",
+            !value
+        );
 
         document.dispatchEvent(
             new CustomEvent("violetvault:animationschange", {
-                detail: {
-                    enabled: Boolean(enabled)
-                }
+                detail: { enabled: value }
             })
         );
     }
-
 
     function applyAllSettings() {
         applyTheme(getSetting("theme"));
         applyEffectsSetting(getSetting("effectsEnabled"));
-        applyAnimationsSetting(
-            getSetting("animationsEnabled")
-        );
+        applyAnimationsSetting(getSetting("animationsEnabled"));
     }
-
-
-    /* -----------------------------------------------------
-       7. Update One Setting
-       ----------------------------------------------------- */
 
     function setSetting(name, value) {
         if (
@@ -578,83 +433,76 @@
             )
         ) {
             console.warn(
-                `[VioletSettings] Unknown setting: ${name}`
+                `[VioletSettings] 알 수 없는 설정: ${name}`
             );
 
             return false;
         }
 
         const state = getState();
+        const settings = ensureSettingsObject(state);
 
-        if (!state) {
+        if (!settings) {
             showSaveStatus(
-                "게임 상태를 불러올 수 없습니다.",
+                "게임 상태를 불러올 수 없어. 잠시 후 다시 시도해 줘.",
                 true
             );
 
             return false;
         }
 
-        const settings = ensureSettingsObject(state);
+        const normalized = name === "theme"
+            ? normalizeTheme(value)
+            : normalizeBoolean(value, DEFAULT_SETTINGS[name]);
 
-        if (!settings) {
-            return false;
+        settings[name] = normalized;
+
+        // script.js와 구버전 저장 데이터가 모두 같은 값을 보도록 동기화한다.
+        if (name === "animationsEnabled") {
+            settings.animations = normalized;
         }
 
-        let normalizedValue;
-
         if (name === "theme") {
-            normalizedValue = normalizeTheme(value);
-        } else {
-            normalizedValue = normalizeBoolean(
-                value,
-                DEFAULT_SETTINGS[name]
-            );
-        }
-
-        settings[name] = normalizedValue;
-
-        if (name === "theme") {
-            applyTheme(normalizedValue);
+            applyTheme(normalized);
         }
 
         if (name === "effectsEnabled") {
-            applyEffectsSetting(normalizedValue);
+            applyEffectsSetting(normalized);
         }
 
         if (name === "animationsEnabled") {
-            applyAnimationsSetting(normalizedValue);
+            applyAnimationsSetting(normalized);
         }
 
         syncControls();
 
         const saved = saveSettings();
 
-        if (saved) {
-            showSaveStatus("설정이 저장되었습니다.");
-        } else {
-            showSaveStatus(
-                "설정은 적용했지만 저장 여부를 확인할 수 없습니다.",
-                true
-            );
-        }
+        showSaveStatus(
+            saved
+                ? "설정이 저장되었어."
+                : "설정은 적용했지만 저장 여부를 확인하지 못했어.",
+            !saved
+        );
 
         document.dispatchEvent(
             new CustomEvent("violetvault:settingschange", {
                 detail: {
                     name,
-                    value: normalizedValue
+                    value: normalized
                 }
             })
         );
 
+        refreshApp();
+
         return true;
     }
 
-
-    /* -----------------------------------------------------
-       8. Generated Settings Interface
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       5. Generated settings interface
+       Preserves the original violet settings class names.
+       --------------------------------------------------------- */
 
     function createSettingsContent() {
         return `
@@ -671,7 +519,7 @@
                             VIOLET VAULT
                         </span>
 
-                        <h2>설정</h2>
+                        <h2 id="vv-settings-dialog-title">설정</h2>
 
                         <p>
                             나에게 맞는 플레이 환경을 설정하세요.
@@ -682,20 +530,16 @@
                         type="button"
                         class="vv-settings-close"
                         data-settings-close
-                        aria-label="설정 닫기"
-                    >
+                        aria-label="설정 닫기">
                         ×
                     </button>
 
                 </div>
 
-
                 <div class="vv-settings-group">
 
                     <div class="vv-settings-group-heading">
-                        <span class="vv-settings-group-icon">
-                            ◐
-                        </span>
+                        <span class="vv-settings-group-icon">◐</span>
 
                         <div>
                             <h3>화면 테마</h3>
@@ -709,61 +553,48 @@
                             type="button"
                             class="vv-settings-theme-option"
                             data-vv-theme-option="dark"
-                            aria-pressed="true"
-                        >
+                            aria-pressed="true">
+
                             <span class="vv-settings-theme-preview vv-preview-dark">
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                                <span></span><span></span><span></span>
                             </span>
 
                             <span class="vv-settings-theme-label">
                                 다크 모드
                             </span>
 
-                            <span class="vv-settings-theme-check">
-                                ✓
-                            </span>
+                            <span class="vv-settings-theme-check">✓</span>
                         </button>
 
                         <button
                             type="button"
                             class="vv-settings-theme-option"
                             data-vv-theme-option="light"
-                            aria-pressed="false"
-                        >
+                            aria-pressed="false">
+
                             <span class="vv-settings-theme-preview vv-preview-light">
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                                <span></span><span></span><span></span>
                             </span>
 
                             <span class="vv-settings-theme-label">
                                 라이트 모드
                             </span>
 
-                            <span class="vv-settings-theme-check">
-                                ✓
-                            </span>
+                            <span class="vv-settings-theme-check">✓</span>
                         </button>
 
                     </div>
 
                 </div>
 
-
                 <div class="vv-settings-group">
 
                     <div class="vv-settings-group-heading">
-                        <span class="vv-settings-group-icon">
-                            ✧
-                        </span>
+                        <span class="vv-settings-group-icon">✧</span>
 
                         <div>
                             <h3>시각 효과</h3>
-                            <p>
-                                화면 효과를 켜거나 끌 수 있습니다.
-                            </p>
+                            <p>화면 효과와 애니메이션을 따로 조절할 수 있어.</p>
                         </div>
                     </div>
 
@@ -771,7 +602,6 @@
 
                         <span class="vv-settings-row-info">
                             <strong>화려한 효과</strong>
-
                             <small>
                                 당첨 효과와 시각적 연출을 사용합니다.
                             </small>
@@ -781,8 +611,7 @@
                             <input
                                 type="checkbox"
                                 id="vv-setting-effects"
-                                data-violet-setting="effects"
-                            >
+                                data-violet-setting="effects">
 
                             <span class="vv-settings-switch-track"></span>
                         </span>
@@ -793,7 +622,6 @@
 
                         <span class="vv-settings-row-info">
                             <strong>애니메이션</strong>
-
                             <small>
                                 전환, 움직임, 애니메이션을 사용합니다.
                             </small>
@@ -803,8 +631,7 @@
                             <input
                                 type="checkbox"
                                 id="vv-setting-animations"
-                                data-violet-setting="animations"
-                            >
+                                data-violet-setting="animations">
 
                             <span class="vv-settings-switch-track"></span>
                         </span>
@@ -813,43 +640,34 @@
 
                 </div>
 
-
                 <div class="vv-settings-status" aria-live="polite">
 
-                    <span class="vv-settings-status-icon">
-                        ✓
-                    </span>
+                    <span class="vv-settings-status-icon">✓</span>
 
                     <span
                         id="vv-settings-save-status"
-                        class="vv-settings-status-text"
-                    >
-                        현재 설정이 적용되어 있습니다.
+                        class="vv-settings-status-text">
+                        현재 설정이 적용되어 있어.
                     </span>
 
                 </div>
-
 
                 <div class="vv-settings-footer">
                     Violet Vault · Personal Settings
                 </div>
 
-            </div>
-        `;
+            </div>`;
     }
 
-
-    /* -----------------------------------------------------
-       9. Create a Modal if Needed
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       6. Create a modal if needed
+       --------------------------------------------------------- */
 
     function createModal() {
-        const existing = queryFirst(MODAL_SELECTORS);
+        modal = queryFirst(MODAL_SELECTORS);
 
-        if (existing) {
-            modal = existing;
-            generatedModal = false;
-
+        if (modal) {
+            addGeneratedContentIfNeeded(modal);
             return modal;
         }
 
@@ -867,113 +685,75 @@
                 class="vv-settings-dialog"
                 role="dialog"
                 aria-modal="true"
-                aria-labelledby="vv-settings-dialog-title"
-            >
+                aria-labelledby="vv-settings-dialog-title">
+
                 ${createSettingsContent()}
-            </section>
-        `;
 
-        const heading = modal.querySelector(
-            ".vv-settings-heading-text h2"
-        );
-
-        if (heading) {
-            heading.id = "vv-settings-dialog-title";
-        }
+            </section>`;
 
         document.body.appendChild(modal);
-
-        generatedModal = true;
 
         return modal;
     }
 
-
     function hasExistingSettingsControls(targetModal) {
-        if (!targetModal) {
-            return false;
-        }
-
         return Boolean(
-            targetModal.querySelector(
-                [
-                    "[data-violet-setting]",
-                    "[data-setting='theme']",
-                    "[data-setting='effects']",
-                    "[data-setting='animations']",
-                    "#settings-effects",
-                    "#settings-animations",
-                    "#settings-theme",
-                    "#theme-select",
-                    "#effects-toggle",
-                    "#animations-toggle"
-                ].join(",")
-            )
+            targetModal?.querySelector([
+                "[data-violet-setting]",
+                "[data-setting='theme']",
+                "[data-setting='effects']",
+                "[data-setting='animations']",
+                "#settings-effects",
+                "#settings-animations",
+                "#settings-theme",
+                "#theme-select",
+                "#effects-toggle",
+                "#animations-toggle"
+            ].join(","))
         );
     }
-
 
     function addGeneratedContentIfNeeded(targetModal) {
-        if (!targetModal) {
+        if (!targetModal || hasExistingSettingsControls(targetModal)) {
             return;
         }
 
-        if (hasExistingSettingsControls(targetModal)) {
+        if (targetModal.querySelector(".vv-settings-generated")) {
             return;
         }
 
-        const existingGenerated = targetModal.querySelector(
-            ".vv-settings-generated"
-        );
-
-        if (existingGenerated) {
-            return;
-        }
-
-        const destination = queryFirst(
-            [
-                "[data-settings-content]",
-                ".settings-content",
-                ".settings-body",
-                ".modal-body",
-                ".settings-modal-content",
-                ".modal-content"
-            ],
-            targetModal
-        );
-
-        if (destination) {
-            const wrapper = document.createElement("div");
-
-            wrapper.innerHTML = createSettingsContent();
-
-            destination.appendChild(
-                wrapper.firstElementChild
-            );
-
-            return;
-        }
+        const destination = queryFirst([
+            "[data-settings-content]",
+            ".settings-content",
+            ".settings-body",
+            ".modal-body",
+            ".settings-modal-content",
+            ".modal-content"
+        ], targetModal);
 
         const wrapper = document.createElement("div");
-
         wrapper.innerHTML = createSettingsContent();
 
-        targetModal.appendChild(
-            wrapper.firstElementChild
-        );
+        const content = wrapper.firstElementChild;
+
+        if (destination) {
+            destination.appendChild(content);
+        } else {
+            targetModal.appendChild(content);
+        }
     }
 
-
-    /* -----------------------------------------------------
-       10. Modal Open / Close
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       7. Modal open / close and keyboard navigation
+       --------------------------------------------------------- */
 
     function openModal() {
-        if (!modal) {
+        if (!modal || !modal.isConnected) {
             createModal();
-            addGeneratedContentIfNeeded(modal);
-            bindControls();
         }
+
+        addGeneratedContentIfNeeded(modal);
+        bindControls();
 
         lastFocusedElement = document.activeElement;
 
@@ -987,45 +767,30 @@
             "is-open"
         );
 
-        if (getBody()) {
-            getBody().classList.add("vv-settings-open");
-        }
+        document.body?.classList.add("vv-settings-open");
 
         syncControls();
         applyAllSettings();
 
-        requestAnimationFrame(function () {
-            if (!modal) {
-                return;
-            }
+        requestAnimationFrame(() => {
+            if (!modal || modal.hidden) return;
 
-            const firstFocusable = queryFirst(
-                [
-                    ".vv-settings-close",
-                    "[data-settings-close]",
-                    "#vv-setting-theme",
-                    "#settings-theme",
-                    "#vv-setting-effects",
-                    "button",
-                    "input",
-                    "select"
-                ],
-                modal
-            );
+            const focusable = queryFirst([
+                ".vv-settings-close",
+                "[data-settings-close]",
+                "#vv-setting-theme",
+                "#vv-setting-effects",
+                "button",
+                "input",
+                "select"
+            ], modal);
 
-            if (firstFocusable) {
-                firstFocusable.focus({
-                    preventScroll: true
-                });
-            }
+            focusable?.focus({ preventScroll: true });
         });
     }
 
-
     function closeModal() {
-        if (!modal) {
-            return;
-        }
+        if (!modal) return;
 
         modal.classList.remove(
             "active",
@@ -1037,13 +802,10 @@
         modal.setAttribute("aria-hidden", "true");
         modal.hidden = true;
 
-        if (getBody()) {
-            getBody().classList.remove("vv-settings-open");
-        }
+        document.body?.classList.remove("vv-settings-open");
 
         if (
-            lastFocusedElement &&
-            document.contains(lastFocusedElement) &&
+            lastFocusedElement?.isConnected &&
             typeof lastFocusedElement.focus === "function"
         ) {
             lastFocusedElement.focus({
@@ -1054,7 +816,6 @@
         lastFocusedElement = null;
     }
 
-
     function isModalOpen() {
         return Boolean(
             modal &&
@@ -1063,160 +824,177 @@
         );
     }
 
-
-    /* -----------------------------------------------------
-       11. Open and Close Buttons
-       ----------------------------------------------------- */
-
     function bindOpenButtons() {
-        const buttons = queryAllUnique(
-            OPEN_BUTTON_SELECTORS
-        );
-
-        buttons.forEach(function (button) {
-            if (button.dataset.violetSettingsOpenBound === "true") {
-                return;
+        for (const button of queryAllUnique(OPEN_BUTTON_SELECTORS)) {
+            if (
+                button.dataset.violetSettingsOpenBound === "true"
+            ) {
+                continue;
             }
 
             button.dataset.violetSettingsOpenBound = "true";
 
-            button.addEventListener("click", function (event) {
+            button.addEventListener("click", (event) => {
                 event.preventDefault();
                 openModal();
             });
-        });
+        }
 
-        /*
-         * Delegated handler supports buttons added dynamically
-         * after initialization.
-         */
-        if (document.body.dataset.violetSettingsDelegated !== "true") {
-            document.body.dataset.violetSettingsDelegated = "true";
+        if (delegatedOpenEventsBound) return;
 
-            document.addEventListener("click", function (event) {
-                const target = event.target;
+        delegatedOpenEventsBound = true;
 
-                if (!(target instanceof Element)) {
-                    return;
-                }
+        document.addEventListener("click", (event) => {
+            if (!(event.target instanceof Element)) return;
 
-                const openButton = target.closest(
+            let button;
+
+            try {
+                button = event.target.closest(
                     OPEN_BUTTON_SELECTORS.join(",")
                 );
+            } catch (_) {
+                return;
+            }
 
-                if (!openButton) {
-                    return;
-                }
+            if (!button || isModalOpen()) return;
 
-                /*
-                 * Avoid reopening a modal that is already visible.
-                 * Explicitly opening an already open modal is harmless.
-                 */
-                if (isModalOpen()) {
-                    return;
-                }
-
-                event.preventDefault();
-                openModal();
-            });
-        }
+            event.preventDefault();
+            openModal();
+        });
     }
 
-
     function bindCloseButtons() {
-        if (!modal) {
-            return;
-        }
+        if (!modal) return;
 
-        const buttons = queryAllUnique(
+        for (const button of queryAllUnique(
             CLOSE_BUTTON_SELECTORS,
             modal
-        );
-
-        buttons.forEach(function (button) {
-            if (button.dataset.violetSettingsCloseBound === "true") {
-                return;
+        )) {
+            if (
+                button.dataset.violetSettingsCloseBound === "true"
+            ) {
+                continue;
             }
 
             button.dataset.violetSettingsCloseBound = "true";
 
-            button.addEventListener("click", function (event) {
+            button.addEventListener("click", (event) => {
                 event.preventDefault();
                 closeModal();
             });
-        });
+        }
 
-        modal.addEventListener("click", function (event) {
-            if (event.target === modal) {
+        if (
+            modal.dataset.violetSettingsBackdropBound !== "true"
+        ) {
+            modal.dataset.violetSettingsBackdropBound = "true";
+
+            modal.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+    }
+
+    function bindKeyboardEvents() {
+        if (keyboardEventsBound) return;
+
+        keyboardEventsBound = true;
+
+        document.addEventListener("keydown", (event) => {
+            if (!isModalOpen() || !modal) return;
+
+            if (event.key === "Escape") {
+                event.preventDefault();
                 closeModal();
+                return;
+            }
+
+            if (event.key !== "Tab") return;
+
+            const focusable = Array.from(
+                modal.querySelectorAll([
+                    "button:not(:disabled)",
+                    "a[href]",
+                    "input:not(:disabled)",
+                    "select:not(:disabled)",
+                    "textarea:not(:disabled)",
+                    "[tabindex]:not([tabindex='-1'])"
+                ].join(","))
+            ).filter((element) =>
+                !element.hidden &&
+                element.getAttribute("aria-hidden") !== "true" &&
+                element.getClientRects().length > 0
+            );
+
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (
+                event.shiftKey &&
+                document.activeElement === first
+            ) {
+                event.preventDefault();
+                last.focus();
+            } else if (
+                !event.shiftKey &&
+                document.activeElement === last
+            ) {
+                event.preventDefault();
+                first.focus();
             }
         });
     }
 
-
-    /* -----------------------------------------------------
-       12. Control Discovery
-       ----------------------------------------------------- */
-
-    function getControls(name) {
-        const selectors = CONTROL_SELECTORS[name] || [];
-
-        return queryAllUnique(selectors);
-    }
-
+    /* ---------------------------------------------------------
+       8. Controls
+       --------------------------------------------------------- */
 
     function getControlName(element) {
-        if (!element) {
-            return null;
-        }
+        if (!element) return null;
 
-        const value = String(
+        const raw = String(
             element.dataset.violetSetting ||
             element.dataset.setting ||
             ""
         ).toLowerCase();
 
+        if (raw === "theme") return "theme";
+
         if (
-            value === "theme" ||
-            value === "effects" ||
-            value === "effects-enabled" ||
-            value === "animations" ||
-            value === "animations-enabled"
+            raw === "effects" ||
+            raw === "effects-enabled"
         ) {
-            if (value === "effects" || value === "effects-enabled") {
-                return "effectsEnabled";
-            }
-
-            if (value === "animations" || value === "animations-enabled") {
-                return "animationsEnabled";
-            }
-
-            return "theme";
-        }
-
-        for (const name of Object.keys(CONTROL_SELECTORS)) {
-            if (getControls(name).includes(element)) {
-                return name;
-            }
-        }
-
-        if (element.id === "vv-setting-effects") {
             return "effectsEnabled";
         }
 
-        if (element.id === "vv-setting-animations") {
+        if (
+            raw === "animations" ||
+            raw === "animations-enabled"
+        ) {
             return "animationsEnabled";
+        }
+
+        for (const name of Object.keys(CONTROL_SELECTORS)) {
+            if (CONTROL_SELECTORS[name].some((selector) => {
+                try {
+                    return element.matches(selector);
+                } catch (_) {
+                    return false;
+                }
+            })) {
+                return name;
+            }
         }
 
         return null;
     }
 
-
-    function getValueFromControl(element, name) {
-        if (!element) {
-            return undefined;
-        }
-
+    function readControlValue(element, name) {
         if (name === "theme") {
             if (
                 element instanceof HTMLSelectElement ||
@@ -1225,14 +1003,12 @@
                 return normalizeTheme(element.value);
             }
 
-            const themeValue =
+            const value =
+                element.dataset.vvThemeOption ||
                 element.dataset.theme ||
-                element.dataset.value ||
-                element.dataset.settingValue;
+                element.dataset.value;
 
-            if (themeValue) {
-                return normalizeTheme(themeValue);
-            }
+            if (value) return normalizeTheme(value);
 
             return getSetting("theme") === "dark"
                 ? "light"
@@ -1257,132 +1033,79 @@
         return !Boolean(getSetting(name));
     }
 
-
-    /* -----------------------------------------------------
-       13. Bind Existing Controls
-       ----------------------------------------------------- */
-
     function bindControls() {
-        if (!modal) {
-            return;
-        }
+        if (!modal) return;
 
         bindCloseButtons();
 
+        // Theme cards use a dedicated click handler.
         modal.querySelectorAll(
-            "[data-violet-setting], [data-setting]"
-        ).forEach(function (control) {
-            if (control.dataset.violetSettingsControlBound === "true") {
+            "[data-vv-theme-option]"
+        ).forEach((button) => {
+            if (button.dataset.violetThemeBound === "true") {
                 return;
             }
 
-            control.dataset.violetSettingsControlBound = "true";
+            button.dataset.violetThemeBound = "true";
+
+            button.addEventListener("click", () => {
+                setSetting(
+                    "theme",
+                    button.dataset.vvThemeOption
+                );
+            });
+        });
+
+        const controls = new Set();
+
+        modal.querySelectorAll(
+            "[data-violet-setting], [data-setting]"
+        ).forEach((element) => controls.add(element));
+
+        for (const name of Object.keys(CONTROL_SELECTORS)) {
+            for (const element of queryAllUnique(
+                CONTROL_SELECTORS[name],
+                modal
+            )) {
+                controls.add(element);
+            }
+        }
+
+        controls.forEach((control) => {
+            if (control.matches("[data-vv-theme-option]")) return;
+
+            if (
+                control.dataset.violetSettingsControlBound === "true"
+            ) {
+                return;
+            }
 
             const name = getControlName(control);
 
-            if (!name) {
-                return;
-            }
+            if (!name) return;
+
+            control.dataset.violetSettingsControlBound = "true";
 
             const eventType =
-                control instanceof HTMLInputElement &&
-                control.type === "checkbox"
+                control instanceof HTMLInputElement ||
+                control instanceof HTMLSelectElement
                     ? "change"
-                    : (
-                        control instanceof HTMLSelectElement ||
-                        control instanceof HTMLInputElement
-                    )
-                        ? "change"
-                        : "click";
+                    : "click";
 
-            control.addEventListener(eventType, function (event) {
+            control.addEventListener(eventType, (event) => {
                 if (eventType === "click") {
                     event.preventDefault();
                 }
 
-                const value = getValueFromControl(
-                    control,
-                    name
+                setSetting(
+                    name,
+                    readControlValue(control, name)
                 );
-
-                setSetting(name, value);
             });
         });
-
-        /*
-         * Also supports recognized existing controls with IDs
-         * but without data-setting attributes.
-         */
-        Object.keys(CONTROL_SELECTORS).forEach(function (name) {
-            getControls(name).forEach(function (control) {
-                if (
-                    modal.contains(control) &&
-                    control.dataset.violetSettingsControlBound === "true"
-                ) {
-                    return;
-                }
-
-                if (!modal.contains(control)) {
-                    return;
-                }
-
-                control.dataset.violetSettingsControlBound = "true";
-
-                const eventType =
-                    control instanceof HTMLInputElement &&
-                    control.type === "checkbox"
-                        ? "change"
-                        : (
-                            control instanceof HTMLSelectElement ||
-                            control instanceof HTMLInputElement
-                        )
-                            ? "change"
-                            : "click";
-
-                control.addEventListener(eventType, function (event) {
-                    if (eventType === "click") {
-                        event.preventDefault();
-                    }
-
-                    setSetting(
-                        name,
-                        getValueFromControl(control, name)
-                    );
-                });
-            });
-        });
-
-        /*
-         * Generated theme choices are separate buttons.
-         */
-        modal.querySelectorAll("[data-vv-theme-option]").forEach(
-            function (button) {
-                if (button.dataset.violetThemeBound === "true") {
-                    return;
-                }
-
-                button.dataset.violetThemeBound = "true";
-
-                button.addEventListener("click", function () {
-                    setSetting(
-                        "theme",
-                        button.dataset.vvThemeOption
-                    );
-                });
-            }
-        );
     }
 
-
-    /* -----------------------------------------------------
-       14. Synchronize Controls
-       ----------------------------------------------------- */
-
     function setControlValue(element, name) {
-        if (!element) {
-            return;
-        }
-
         const value = getSetting(name);
 
         if (name === "theme") {
@@ -1427,69 +1150,55 @@
         }
     }
 
-
     function syncControls() {
-        Object.keys(CONTROL_SELECTORS).forEach(function (name) {
-            getControls(name).forEach(function (control) {
+        for (const name of Object.keys(CONTROL_SELECTORS)) {
+            for (const control of queryAllUnique(
+                CONTROL_SELECTORS[name]
+            )) {
                 setControlValue(control, name);
-            });
-        });
-
-        if (!modal) {
-            return;
+            }
         }
 
-        /*
-         * Theme choice cards.
-         */
-        modal.querySelectorAll("[data-vv-theme-option]").forEach(
-            function (button) {
-                const selected =
-                    button.dataset.vvThemeOption === getSetting("theme");
+        if (!modal) return;
 
-                button.classList.toggle("selected", selected);
-                button.classList.toggle("active", selected);
+        modal.querySelectorAll(
+            "[data-vv-theme-option]"
+        ).forEach((button) => {
+            const selected =
+                button.dataset.vvThemeOption === getSetting("theme");
 
-                button.setAttribute(
-                    "aria-pressed",
-                    String(selected)
-                );
-            }
-        );
+            button.classList.toggle("selected", selected);
+            button.classList.toggle("active", selected);
 
-        /*
-         * Switch indicator text.
-         */
+            button.setAttribute(
+                "aria-pressed",
+                String(selected)
+            );
+        });
+
         modal.querySelectorAll(
             "[data-violet-setting], [data-setting]"
-        ).forEach(function (control) {
+        ).forEach((control) => {
             const name = getControlName(control);
 
-            if (!name) {
-                return;
+            if (name) {
+                setControlValue(control, name);
             }
-
-            setControlValue(control, name);
         });
     }
 
-
-    /* -----------------------------------------------------
-       15. Save Status
-       ----------------------------------------------------- */
+    /* ---------------------------------------------------------
+       9. Save status and lifecycle
+       --------------------------------------------------------- */
 
     function showSaveStatus(message, isError = false) {
-        if (!modal) {
-            return;
-        }
+        if (!modal) return;
 
         const status = modal.querySelector(
             "#vv-settings-save-status, [data-settings-status]"
         );
 
-        if (!status) {
-            return;
-        }
+        if (!status) return;
 
         status.textContent = String(message);
 
@@ -1505,116 +1214,22 @@
 
         if (saveStatusTimer) {
             clearTimeout(saveStatusTimer);
-            saveStatusTimer = null;
         }
 
-        if (!isError) {
-            saveStatusTimer = setTimeout(function () {
-                if (!status.isConnected) {
-                    return;
-                }
+        saveStatusTimer = null;
 
-                status.textContent =
-                    "현재 설정이 적용되어 있습니다.";
+        if (!isError) {
+            saveStatusTimer = setTimeout(() => {
+                if (status.isConnected) {
+                    status.textContent =
+                        "현재 설정이 적용되어 있어.";
+                }
             }, 2500);
         }
     }
 
-
-    /* -----------------------------------------------------
-       16. Keyboard Accessibility
-       ----------------------------------------------------- */
-
-    function bindKeyboardEvents() {
-        document.addEventListener("keydown", function (event) {
-            if (!isModalOpen()) {
-                return;
-            }
-
-            if (event.key === "Escape") {
-                event.preventDefault();
-                closeModal();
-                return;
-            }
-
-            if (event.key !== "Tab" || !modal) {
-                return;
-            }
-
-            const focusable = Array.from(
-                modal.querySelectorAll(
-                    [
-                        "button:not(:disabled)",
-                        "a[href]",
-                        "input:not(:disabled)",
-                        "select:not(:disabled)",
-                        "textarea:not(:disabled)",
-                        "[tabindex]:not([tabindex='-1'])"
-                    ].join(",")
-                )
-            ).filter(function (element) {
-                return (
-                    !element.hidden &&
-                    element.getAttribute("aria-hidden") !== "true" &&
-                    element.getClientRects().length > 0
-                );
-            });
-
-            if (focusable.length === 0) {
-                return;
-            }
-
-            const first = focusable[0];
-            const last = focusable[focusable.length - 1];
-
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (
-                !event.shiftKey &&
-                document.activeElement === last
-            ) {
-                event.preventDefault();
-                first.focus();
-            }
-        });
-    }
-
-
-    /* -----------------------------------------------------
-       17. Effects Module Synchronization
-       ----------------------------------------------------- */
-
-    function syncEffectsModule() {
-        if (!window.VioletEffects) {
-            return;
-        }
-
-        const enabled = getSetting("effectsEnabled");
-
-        if (
-            typeof window.VioletEffects.setEnabled === "function"
-        ) {
-            try {
-                window.VioletEffects.setEnabled(enabled);
-            } catch (error) {
-                console.warn(
-                    "[VioletSettings] Effect module synchronization failed:",
-                    error
-                );
-            }
-        }
-    }
-
-
-    /* -----------------------------------------------------
-       18. Initialization
-       ----------------------------------------------------- */
-
     function initialize() {
-        if (initialized) {
-            return;
-        }
+        if (initialized || !document.body) return;
 
         initialized = true;
         app = window.VioletVaultApp || null;
@@ -1627,54 +1242,61 @@
 
         createModal();
         addGeneratedContentIfNeeded(modal);
-
-        /*
-         * Bind the controls after the interface exists.
-         */
         bindControls();
         bindOpenButtons();
         bindKeyboardEvents();
-
         applyAllSettings();
         syncControls();
 
-        /*
-         * Apply effects again after modules have loaded.
-         */
-        syncEffectsModule();
-
-        /*
-         * Another script may finish initializing the app later.
-         * Retry state synchronization when the app announces readiness.
-         */
         document.addEventListener(
             "violetvault:ready",
-            function () {
+            () => {
                 app = window.VioletVaultApp || app;
 
-                const latestState = getState();
+                const latest = getState();
 
-                if (latestState) {
-                    ensureSettingsObject(latestState);
+                if (latest) {
+                    ensureSettingsObject(latest);
                 }
 
                 applyAllSettings();
                 syncControls();
             }
         );
+
+        document.addEventListener(
+            "game:data-changed",
+            (event) => {
+                const latest =
+                    getState() || event?.detail?.state;
+
+                if (latest) {
+                    ensureSettingsObject(latest);
+                }
+
+                applyAllSettings();
+                syncControls();
+            }
+        );
+
+        console.log(
+            "[Violet Vault] 설정 시스템 로드 완료."
+        );
     }
 
+    /* ---------------------------------------------------------
+       10. Public API
+       --------------------------------------------------------- */
 
-    /* -----------------------------------------------------
-       19. Public API
-       ----------------------------------------------------- */
-
-    window.VioletSettings = {
-        init: function (application) {
-            if (application && typeof application === "object") {
+    const VioletSettings = {
+        init(application) {
+            if (
+                application &&
+                typeof application === "object"
+            ) {
                 app = application;
-            } else if (window.VioletVaultApp) {
-                app = window.VioletVaultApp;
+            } else {
+                app = window.VioletVaultApp || app;
             }
 
             if (!initialized) {
@@ -1684,7 +1306,7 @@
                 syncControls();
             }
 
-            return this;
+            return VioletSettings;
         },
 
         open: openModal,
@@ -1697,60 +1319,58 @@
 
         set: setSetting,
 
-        getAll: function () {
-            const settings = getSettings();
-
-            return Object.assign(
-                {},
-                settings || DEFAULT_SETTINGS
-            );
-        },
-
         apply: applyAllSettings,
 
         save: saveSettings,
 
-        sync: function () {
+        sync() {
             syncControls();
             applyAllSettings();
         },
 
-        reset: function () {
-            /*
-             * Reset settings only.
-             * This does not reset balance, history,
-             * achievements, stock holdings, or debt.
-             */
+        getAll() {
+            return { ...getSettings() };
+        },
+
+        reset() {
             const state = getState();
-
-            if (!state) {
-                return false;
-            }
-
             const settings = ensureSettingsObject(state);
 
+            if (!settings) return false;
+
+            // 설정만 초기화하고 돈, 기록, 도감, 업적, 주식은 유지한다.
             settings.theme = DEFAULT_SETTINGS.theme;
-            settings.effectsEnabled =
-                DEFAULT_SETTINGS.effectsEnabled;
+            settings.effectsEnabled = DEFAULT_SETTINGS.effectsEnabled;
 
             settings.animationsEnabled =
+                DEFAULT_SETTINGS.animationsEnabled;
+
+            settings.animations =
                 DEFAULT_SETTINGS.animationsEnabled;
 
             applyAllSettings();
             syncControls();
 
-            saveSettings();
+            const saved = saveSettings();
 
-            showSaveStatus("설정이 기본값으로 복원되었습니다.");
+            showSaveStatus(
+                saved
+                    ? "설정이 기본값으로 복원되었어."
+                    : "기본값을 적용했지만 저장 여부를 확인하지 못했어.",
+                !saved
+            );
 
-            return true;
+            return saved;
         }
     };
 
+    window.VioletSettings = VioletSettings;
 
-    /* -----------------------------------------------------
-       20. Start
-       ----------------------------------------------------- */
+    // Older script.js versions may use the Settings alias.
+    window.Settings = Object.assign(
+        window.Settings || {},
+        VioletSettings
+    );
 
     if (document.readyState === "loading") {
         document.addEventListener(
@@ -1761,5 +1381,4 @@
     } else {
         initialize();
     }
-
 })();
