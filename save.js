@@ -1,51 +1,60 @@
 /* =========================================================
    VIOLET VAULT
    Save System — save.js
+   Compatible State Management System
    =========================================================
 
    담당 기능
-   - 게임 데이터 저장
-   - 저장 데이터 불러오기
+   - 게임 데이터 저장 및 불러오기
    - 저장 데이터 초기화
-   - 저장 데이터 유효성 확인
-   - 저장 시간 기록
-   - 손상되거나 잘못된 데이터 처리
-
-   저장 위치
-   - 브라우저 localStorage
+   - 브라우저 localStorage 연결
+   - SaveStore 호환 API 제공
+   - VioletVaultSave 호환 API 제공
+   - VioletVaultApp 호환 API 제공
+   - GAME_DATA 호환 데이터 제공
+   - 다른 모듈에 게임 상태 공유
 
    연결 파일
    - index.html
+   - data.js
+   - economy.js
+   - bank.js
+   - stock.js
+   - settings.js
    - script.js
 
-   중요
-   - 실제 돈이나 개인정보를 저장하지 않는다.
-   - 게임 진행 상황만 브라우저에 저장한다.
+   모든 금액은 가상 화폐 Q다.
    ========================================================= */
 
 (() => {
     "use strict";
 
-
     /* =====================================================
-       1. 저장 설정
+       1. 기본 설정
        ===================================================== */
 
-    /*
-     * 반드시 script.js의 STORAGE_KEY와 같아야 한다.
-     * 이름이 다르면 기존 저장 데이터를 불러오지 못한다.
-     */
+    const DATA = window.VioletVaultData || {};
 
     const STORAGE_KEY = "violet-vault-save-v1";
 
-    const SAVE_VERSION = 1;
-
     const LAST_SAVED_KEY = "violet-vault-last-saved";
 
-    /*
-     * 브라우저 저장 공간을 사용할 수 없을 때
-     * 현재 페이지 안에서만 임시로 사용하는 데이터.
-     */
+    const SAVE_VERSION = 1;
+
+    const CURRENCY = DATA.CURRENCY || "Q";
+
+    const STARTING_BALANCE = Number.isFinite(
+        Number(DATA.STARTING_BALANCE)
+    )
+        ? Math.max(0, Number(DATA.STARTING_BALANCE))
+        : 100;
+
+    const HISTORY_LIMIT = Math.max(
+        1,
+        Math.floor(Number(DATA.HISTORY_LIMIT) || 300)
+    );
+
+    let currentState = null;
 
     let memorySave = null;
 
@@ -53,42 +62,31 @@
 
 
     /* =====================================================
-       2. 저장 기능 사용 가능 여부 확인
+       2. 공통 유틸리티
        ===================================================== */
 
-    function isStorageAvailable() {
-        try {
-            const testKey = "__violet_vault_test__";
+    function safeNumber(value, fallback = 0) {
+        const number = Number(value);
 
-            localStorage.setItem(testKey, "test");
-            localStorage.removeItem(testKey);
-
-            return true;
-        } catch (error) {
-            return false;
-        }
+        return Number.isFinite(number)
+            ? number
+            : fallback;
     }
 
 
-    /* =====================================================
-       3. 데이터 복사
-       ===================================================== */
+    function roundMoney(value) {
+        return Math.round(
+            (safeNumber(value) + Number.EPSILON) * 100
+        ) / 100;
+    }
 
-    /*
-     * 저장할 데이터가 외부에서 변경되더라도
-     * 원본 게임 상태에 영향을 주지 않도록 복사한다.
-     */
 
-    function cloneData(data) {
-        if (data === undefined || data === null) {
-            return null;
-        }
-
+    function cloneData(value) {
         try {
-            return JSON.parse(JSON.stringify(data));
+            return JSON.parse(JSON.stringify(value));
         } catch (error) {
             console.error(
-                "[Violet Vault Save] 데이터를 복사하지 못했습니다.",
+                "[Violet Vault Save] 데이터 복사 실패:",
                 error
             );
 
@@ -97,78 +95,315 @@
     }
 
 
-    /* =====================================================
-       4. 저장 데이터 기본 검사
-       ===================================================== */
-
-    function isValidSaveData(data) {
-        if (
-            !data ||
-            typeof data !== "object" ||
-            Array.isArray(data)
-        ) {
-            return false;
-        }
-
-        /*
-         * Violet Vault의 게임 상태에는
-         * 보유 금액 정보가 반드시 있어야 한다.
-         */
-
-        if (
-            typeof data.balance !== "number" ||
-            !Number.isFinite(data.balance) ||
-            data.balance < 0
-        ) {
-            return false;
-        }
-
-        /*
-         * 핵심 데이터가 올바른 형태인지 검사한다.
-         */
-
-        if (
-            data.history !== undefined &&
-            !Array.isArray(data.history)
-        ) {
-            return false;
-        }
-
-        if (
-            data.codex !== undefined &&
-            !Array.isArray(data.codex)
-        ) {
-            return false;
-        }
-
-        if (
-            data.unlockedAchievements !== undefined &&
-            !Array.isArray(data.unlockedAchievements)
-        ) {
-            return false;
-        }
-
-        return true;
+    function createId() {
+        return (
+            Date.now().toString(36) +
+            "-" +
+            Math.random().toString(36).slice(2, 10)
+        );
     }
 
 
     /* =====================================================
-       5. 저장 시간 처리
+       3. 기본 게임 데이터
        ===================================================== */
 
-    function updateSavedTime(timestamp = Date.now()) {
-        lastSavedAt = timestamp;
+    function createDefaultState() {
+        return {
+            version: SAVE_VERSION,
+
+            balance: STARTING_BALANCE,
+
+            totalDraws: 0,
+
+            totalIncome: 0,
+
+            totalExpenses: 0,
+
+            totalEarned: 0,
+
+            totalSpent: 0,
+
+            debt: 0,
+
+            highestPrize: 0,
+
+            bestWin: 0,
+
+            lastPrize: null,
+
+            history: [],
+
+            codex: [],
+
+            unlockedAchievements: [],
+
+            stocks: {},
+
+            stockPortfolioValue: 0,
+
+            stockRealizedProfit: 0,
+
+            marketLastUpdatedAt: Date.now(),
+
+            settings: {
+                theme: "dark",
+
+                effectsEnabled:
+                    DATA.DEFAULT_EFFECTS_ENABLED !== false,
+
+                animationsEnabled:
+                    DATA.DEFAULT_ANIMATIONS_ENABLED !== false,
+
+                animations:
+                    DATA.DEFAULT_ANIMATIONS_ENABLED !== false
+            }
+        };
+    }
+
+
+    /* =====================================================
+       4. 이전 데이터와 새 데이터 호환
+       ===================================================== */
+
+    /*
+     * 기존 파일은 totalEarned / totalSpent를 사용하고,
+     * 경제 모듈은 totalIncome / totalExpenses를 사용한다.
+     *
+     * 두 이름이 같은 값을 가리키도록 연결한다.
+     */
+
+    function bindAlias(state, alias, original) {
+        if (
+            !state ||
+            typeof state !== "object"
+        ) {
+            return;
+        }
+
+        const descriptor = Object.getOwnPropertyDescriptor(
+            state,
+            alias
+        );
+
+        if (
+            descriptor &&
+            typeof descriptor.get === "function"
+        ) {
+            return;
+        }
+
+        const existingAlias = safeNumber(
+            state[alias],
+            0
+        );
+
+        const existingOriginal = safeNumber(
+            state[original],
+            0
+        );
+
+        /*
+         * 이전 저장 데이터에만 값이 존재하는 경우도 보존한다.
+         */
+
+        if (
+            existingOriginal === 0 &&
+            existingAlias !== 0
+        ) {
+            state[original] = existingAlias;
+        }
 
         try {
-            localStorage.setItem(
-                LAST_SAVED_KEY,
-                String(timestamp)
-            );
+            delete state[alias];
+
+            Object.defineProperty(state, alias, {
+                enumerable: true,
+
+                configurable: true,
+
+                get() {
+                    return state[original];
+                },
+
+                set(value) {
+                    const number = Number(value);
+
+                    if (Number.isFinite(number)) {
+                        state[original] = number;
+                    }
+                }
+            });
         } catch (error) {
             /*
-             * 저장 시간 기록에 실패해도
-             * 게임 데이터 저장 자체는 유지한다.
+             * 별칭 등록이 불가능한 환경에서는
+             * 일반 데이터로 유지한다.
              */
+
+            state[alias] = state[original];
+        }
+    }
+
+
+    function normalizeState(rawData) {
+        const defaults = createDefaultState();
+
+        const raw =
+            rawData &&
+            typeof rawData === "object" &&
+            !Array.isArray(rawData)
+                ? rawData
+                : {};
+
+        const state = Object.assign(
+            defaults,
+            raw
+        );
+
+        state.balance = Math.max(
+            0,
+            roundMoney(state.balance)
+        );
+
+        state.totalDraws = Math.max(
+            0,
+            Math.floor(safeNumber(state.totalDraws))
+        );
+
+        state.totalIncome = Math.max(
+            0,
+            roundMoney(
+                Math.max(
+                    safeNumber(raw.totalIncome),
+                    safeNumber(raw.totalEarned)
+                )
+            )
+        );
+
+        state.totalExpenses = Math.max(
+            0,
+            roundMoney(
+                Math.max(
+                    safeNumber(raw.totalExpenses),
+                    safeNumber(raw.totalSpent)
+                )
+            )
+        );
+
+        state.debt = Math.max(
+            0,
+            roundMoney(state.debt)
+        );
+
+        state.bestWin = Math.max(
+            0,
+            roundMoney(
+                Math.max(
+                    safeNumber(raw.bestWin),
+                    safeNumber(raw.highestPrize)
+                )
+            )
+        );
+
+        state.highestPrize = state.bestWin;
+
+        state.stockPortfolioValue = Math.max(
+            0,
+            roundMoney(state.stockPortfolioValue)
+        );
+
+        state.stockRealizedProfit = roundMoney(
+            state.stockRealizedProfit
+        );
+
+        if (!Array.isArray(state.history)) {
+            state.history = [];
+        }
+
+        if (!Array.isArray(state.codex)) {
+            state.codex = [];
+        }
+
+        if (!Array.isArray(state.unlockedAchievements)) {
+            state.unlockedAchievements = [];
+        }
+
+        if (
+            !state.stocks ||
+            typeof state.stocks !== "object" ||
+            Array.isArray(state.stocks)
+        ) {
+            state.stocks = {};
+        }
+
+        if (
+            !state.settings ||
+            typeof state.settings !== "object" ||
+            Array.isArray(state.settings)
+        ) {
+            state.settings = {};
+        }
+
+        state.settings.theme =
+            state.settings.theme === "light"
+                ? "light"
+                : "dark";
+
+        state.settings.effectsEnabled =
+            typeof state.settings.effectsEnabled === "boolean"
+                ? state.settings.effectsEnabled
+                : true;
+
+        state.settings.animationsEnabled =
+            typeof state.settings.animationsEnabled === "boolean"
+                ? state.settings.animationsEnabled
+                : true;
+
+        state.settings.animations =
+            typeof state.settings.animations === "boolean"
+                ? state.settings.animations
+                : state.settings.animationsEnabled;
+
+        bindAlias(
+            state,
+            "totalEarned",
+            "totalIncome"
+        );
+
+        bindAlias(
+            state,
+            "totalSpent",
+            "totalExpenses"
+        );
+
+        bindAlias(
+            state,
+            "highestPrize",
+            "bestWin"
+        );
+
+        return state;
+    }
+
+
+    /* =====================================================
+       5. 저장 공간 확인
+       ===================================================== */
+
+    function isStorageAvailable() {
+        try {
+            const testKey = "__violet_vault_test__";
+
+            window.localStorage.setItem(
+                testKey,
+                "test"
+            );
+
+            window.localStorage.removeItem(testKey);
+
+            return true;
+        } catch (error) {
+            return false;
         }
     }
 
@@ -179,13 +414,15 @@
         }
 
         try {
-            const stored = localStorage.getItem(LAST_SAVED_KEY);
+            const value = window.localStorage.getItem(
+                LAST_SAVED_KEY
+            );
 
-            if (stored === null) {
+            if (value === null) {
                 return null;
             }
 
-            const timestamp = Number(stored);
+            const timestamp = Number(value);
 
             if (!Number.isFinite(timestamp)) {
                 return null;
@@ -209,34 +446,57 @@
 
         const date = new Date(timestamp);
 
-        if (Number.isNaN(date.getTime())) {
-            return null;
-        }
-
-        return date;
+        return Number.isNaN(date.getTime())
+            ? null
+            : date;
     }
 
 
     /* =====================================================
-       6. 게임 데이터 저장
+       6. 게임 상태 확인
        ===================================================== */
 
-    /*
-     * script.js에서 호출하는 함수:
-     *
-     * VioletVaultSave.save(state);
-     *
-     * 현재 게임 상태 전체를 저장한다.
-     */
+    function getState() {
+        if (!currentState) {
+            currentState = normalizeState(
+                createDefaultState()
+            );
+        }
 
-    function save(state) {
+        return currentState;
+    }
+
+
+    function notifyDataChanged() {
+        try {
+            window.dispatchEvent(
+                new CustomEvent("game:data-changed", {
+                    detail: {
+                        state: getState()
+                    }
+                })
+            );
+        } catch (error) {
+            console.warn(
+                "[Violet Vault Save] 상태 변경 알림 실패:",
+                error
+            );
+        }
+    }
+
+
+    /* =====================================================
+       7. 데이터 저장
+       ===================================================== */
+
+    function save(state = getState()) {
         if (
             !state ||
             typeof state !== "object" ||
             Array.isArray(state)
         ) {
             console.error(
-                "[Violet Vault Save] 잘못된 저장 요청입니다."
+                "[Violet Vault Save] 저장할 데이터가 올바르지 않아."
             );
 
             return false;
@@ -248,59 +508,45 @@
             return false;
         }
 
-        /*
-         * 저장 메타데이터는 실제 게임 상태와
-         * 별도로 관리한다.
-         */
-
         snapshot.version = SAVE_VERSION;
+
         snapshot.savedAt = Date.now();
-
-        if (!isValidSaveData(snapshot)) {
-            console.error(
-                "[Violet Vault Save] 저장할 데이터가 올바르지 않습니다."
-            );
-
-            return false;
-        }
-
-        /*
-         * 우선 메모리에 저장한다.
-         * 브라우저 저장 공간을 사용할 수 없더라도
-         * 현재 페이지에서 작업이 완전히 중단되지는 않는다.
-         */
 
         memorySave = snapshot;
 
-        updateSavedTime(snapshot.savedAt);
+        lastSavedAt = snapshot.savedAt;
 
-        /*
-         * localStorage에 영구 저장한다.
-         */
+        try {
+            window.localStorage.setItem(
+                LAST_SAVED_KEY,
+                String(lastSavedAt)
+            );
+        } catch (error) {
+            /*
+             * 저장 시간 기록에 실패해도
+             * 게임 데이터 저장을 계속 시도한다.
+             */
+        }
 
         if (!isStorageAvailable()) {
             console.warn(
-                "[Violet Vault Save] 브라우저 저장 공간을 사용할 수 없습니다. " +
-                "현재 페이지에서만 임시 저장됩니다."
+                "[Violet Vault Save] 브라우저 저장 공간을 사용할 수 없어. " +
+                "현재 페이지에서만 임시 저장할게."
             );
 
             return false;
         }
 
         try {
-            localStorage.setItem(
+            window.localStorage.setItem(
                 STORAGE_KEY,
                 JSON.stringify(snapshot)
-            );
-
-            console.log(
-                "[Violet Vault Save] 저장 완료."
             );
 
             return true;
         } catch (error) {
             console.error(
-                "[Violet Vault Save] 저장에 실패했습니다.",
+                "[Violet Vault Save] 저장 실패:",
                 error
             );
 
@@ -310,81 +556,196 @@
 
 
     /* =====================================================
-       7. 저장 데이터 불러오기
+       8. 데이터 불러오기
        ===================================================== */
 
-    /*
-     * script.js에서 호출하는 함수:
-     *
-     * const state = VioletVaultSave.load();
-     *
-     * 저장 데이터가 없으면 null을 반환한다.
-     */
-
     function load() {
-        /*
-         * 먼저 브라우저의 영구 저장 데이터를 확인한다.
-         */
+        let loadedData = null;
 
         if (isStorageAvailable()) {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY);
+                const raw = window.localStorage.getItem(
+                    STORAGE_KEY
+                );
 
                 if (raw !== null) {
                     const parsed = JSON.parse(raw);
 
-                    if (isValidSaveData(parsed)) {
-                        memorySave = parsed;
-
-                        if (
-                            Number.isFinite(parsed.savedAt)
-                        ) {
-                            lastSavedAt = parsed.savedAt;
-                        }
-
-                        console.log(
-                            "[Violet Vault Save] 저장 데이터를 불러왔습니다."
+                    if (
+                        parsed &&
+                        typeof parsed === "object" &&
+                        !Array.isArray(parsed) &&
+                        typeof parsed.balance === "number" &&
+                        Number.isFinite(parsed.balance) &&
+                        parsed.balance >= 0
+                    ) {
+                        loadedData = parsed;
+                    } else {
+                        console.warn(
+                            "[Violet Vault Save] 저장 데이터 형식이 올바르지 않아."
                         );
-
-                        return cloneData(parsed);
                     }
-
-                    console.warn(
-                        "[Violet Vault Save] 저장 데이터의 형식이 올바르지 않습니다."
-                    );
                 }
             } catch (error) {
                 console.error(
-                    "[Violet Vault Save] 데이터를 불러오지 못했습니다.",
+                    "[Violet Vault Save] 데이터 불러오기 실패:",
                     error
                 );
             }
         }
 
-        /*
-         * 영구 저장 데이터를 읽지 못한 경우,
-         * 현재 페이지에 임시 저장된 데이터가 있다면 사용한다.
-         */
-
-        if (isValidSaveData(memorySave)) {
-            return cloneData(memorySave);
+        if (!loadedData && memorySave) {
+            loadedData = memorySave;
         }
 
-        /*
-         * 저장 데이터가 없으면 null을 반환한다.
-         * script.js에서 기본 게임 상태를 생성한다.
-         */
+        currentState = normalizeState(
+            loadedData || createDefaultState()
+        );
 
-        return null;
+        if (
+            loadedData &&
+            Number.isFinite(Number(loadedData.savedAt))
+        ) {
+            lastSavedAt = Number(loadedData.savedAt);
+        }
+
+        notifyDataChanged();
+
+        return currentState;
     }
 
 
     /* =====================================================
-       8. 저장 데이터 존재 여부
+       9. 데이터 수정
        ===================================================== */
 
+    function update(callback) {
+        const state = getState();
+
+        if (typeof callback !== "function") {
+            console.error(
+                "[Violet Vault Save] update에는 함수가 필요해."
+            );
+
+            return false;
+        }
+
+        try {
+            const result = callback(state);
+
+            save(state);
+
+            notifyDataChanged();
+
+            return result === undefined
+                ? true
+                : result;
+        } catch (error) {
+            console.error(
+                "[Violet Vault Save] 데이터 수정 실패:",
+                error
+            );
+
+            return false;
+        }
+    }
+
+
+    /* =====================================================
+       10. 거래 기록 추가
+       ===================================================== */
+
+    function addHistory(entry) {
+        if (
+            !entry ||
+            typeof entry !== "object"
+        ) {
+            return false;
+        }
+
+        const state = getState();
+
+        state.history.unshift({
+            ...entry,
+
+            id: entry.id || createId(),
+
+            timestamp:
+                Number.isFinite(Number(entry.timestamp))
+                    ? Number(entry.timestamp)
+                    : Date.now()
+        });
+
+        if (state.history.length > HISTORY_LIMIT) {
+            state.history.length = HISTORY_LIMIT;
+        }
+
+        save(state);
+
+        return true;
+    }
+
+
+    /* =====================================================
+       11. 데이터 초기화
+       ===================================================== */
+
+    function reset() {
+        currentState = normalizeState(
+            createDefaultState()
+        );
+
+        memorySave = null;
+
+        lastSavedAt = null;
+
+        try {
+            window.localStorage.removeItem(STORAGE_KEY);
+
+            window.localStorage.removeItem(LAST_SAVED_KEY);
+        } catch (error) {
+            console.warn(
+                "[Violet Vault Save] 기존 저장 파일 삭제 실패:",
+                error
+            );
+        }
+
+        /*
+         * 새 게임의 기본 상태를 즉시 저장한다.
+         */
+
+        save(currentState);
+
+        notifyDataChanged();
+
+        return currentState;
+    }
+
+
+    function removeSavedData() {
+        memorySave = null;
+
+        lastSavedAt = null;
+
+        try {
+            window.localStorage.removeItem(STORAGE_KEY);
+
+            window.localStorage.removeItem(LAST_SAVED_KEY);
+
+            return true;
+        } catch (error) {
+            console.error(
+                "[Violet Vault Save] 저장 데이터 삭제 실패:",
+                error
+            );
+
+            return false;
+        }
+    }
+
+
     function hasSave() {
-        if (isValidSaveData(memorySave)) {
+        if (memorySave) {
             return true;
         }
 
@@ -393,94 +754,14 @@
         }
 
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-
-            if (raw === null) {
-                return false;
-            }
-
-            const parsed = JSON.parse(raw);
-
-            return isValidSaveData(parsed);
+            return window.localStorage.getItem(
+                STORAGE_KEY
+            ) !== null;
         } catch (error) {
             return false;
         }
     }
 
-
-    /* =====================================================
-       9. 게임 데이터 초기화
-       ===================================================== */
-
-    /*
-     * script.js의 초기화 기능에서 호출한다.
-     *
-     * VioletVaultSave.reset();
-     *
-     * 저장된 게임 데이터와 저장 시간을 삭제한다.
-     */
-
-    function reset() {
-        memorySave = null;
-        lastSavedAt = null;
-
-        let success = true;
-
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem(LAST_SAVED_KEY);
-        } catch (error) {
-            success = false;
-
-            console.error(
-                "[Violet Vault Save] 저장 데이터를 초기화하지 못했습니다.",
-                error
-            );
-        }
-
-        console.log(
-            "[Violet Vault Save] 초기화 완료."
-        );
-
-        return success;
-    }
-
-
-    /* =====================================================
-       10. 저장 데이터 삭제
-       ===================================================== */
-
-    /*
-     * 게임 초기화와 별개로 저장 데이터만 삭제한다.
-     *
-     * 주의:
-     * 메모리에 남은 게임 상태를 초기화하는 것은 아니므로
-     * 삭제한 다음 save()를 다시 호출하면 데이터가 재저장될 수 있다.
-     */
-
-    function removeSavedData() {
-        memorySave = null;
-        lastSavedAt = null;
-
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem(LAST_SAVED_KEY);
-
-            return true;
-        } catch (error) {
-            console.error(
-                "[Violet Vault Save] 저장 데이터 삭제 실패.",
-                error
-            );
-
-            return false;
-        }
-    }
-
-
-    /* =====================================================
-       11. 저장 시스템 정보
-       ===================================================== */
 
     function getInfo() {
         return {
@@ -498,31 +779,268 @@
 
 
     /* =====================================================
-       12. 공개 API 등록
+       12. 이전 데이터 이름 호환
        ===================================================== */
 
-    window.VioletVaultSave = {
-        save,
+    /*
+     * 기존 script.js에서 사용하는 GAME_DATA 이름을
+     * 현재 VioletVaultData 구조에 연결한다.
+     *
+     * 원래 데이터와 설정은 변경하지 않는다.
+     */
+
+    window.GAME_DATA = Object.assign(
+        {},
+        DATA,
+        {
+            currency: CURRENCY,
+
+            minPrize: safeNumber(
+                DATA.MIN_REWARD,
+                1
+            ),
+
+            maxPrize: safeNumber(
+                DATA.MAX_REWARD,
+                100
+            ),
+
+            drawCost: safeNumber(
+                DATA.DRAW_COST,
+                1
+            ),
+
+            autoDrawInterval: safeNumber(
+                DATA.AUTO_DRAW_DELAY,
+                1000
+            ),
+
+            rarities: Array.isArray(DATA.RARITIES)
+                ? DATA.RARITIES
+                : [],
+
+            achievements: Array.isArray(DATA.ACHIEVEMENTS)
+                ? DATA.ACHIEVEMENTS
+                : [],
+
+            stocks: Array.isArray(DATA.STOCKS)
+                ? DATA.STOCKS
+                : []
+        }
+    );
+
+
+    /* =====================================================
+       13. SaveStore API
+       ===================================================== */
+
+    /*
+     * 기존 script.js와 연결하기 위한 API다.
+     *
+     * SaveStore.getState()
+     * SaveStore.load()
+     * SaveStore.save()
+     * SaveStore.update()
+     * SaveStore.reset()
+     */
+
+    window.SaveStore = {
+        getState,
+
         load,
+
+        save,
+
+        update,
+
         reset,
+
+        addHistory,
 
         hasSave,
 
-        getLastSavedAt,
-        getLastSavedDate,
-
         getInfo,
 
-        removeSavedData
+        removeSavedData,
+
+        getLastSavedAt,
+
+        getLastSavedDate,
+
+        get state() {
+            return getState();
+        }
     };
 
 
     /* =====================================================
-       13. 시스템 초기화
+       14. VioletVaultSave API
        ===================================================== */
+
+    /*
+     * 다른 모듈에서 사용하는 기존 이름도 유지한다.
+     */
+
+    window.VioletVaultSave = {
+        getState,
+
+        save,
+
+        load,
+
+        update,
+
+        reset,
+
+        addHistory,
+
+        hasSave,
+
+        getInfo,
+
+        removeSavedData,
+
+        getLastSavedAt,
+
+        getLastSavedDate
+    };
+
+
+    /* =====================================================
+       15. VioletVaultApp API
+       ===================================================== */
+
+    /*
+     * 은행, 주식, 설정 모듈이 공통 게임 상태를
+     * 사용할 수 있도록 호환 인터페이스를 제공한다.
+     */
+
+    const VioletVaultApp = {
+        get state() {
+            return getState();
+        },
+
+        getState,
+
+        save,
+
+        saveState: save,
+
+        addHistory,
+
+        render() {
+            if (
+                window.VioletVaultMain &&
+                typeof window.VioletVaultMain.render === "function"
+            ) {
+                window.VioletVaultMain.render();
+            }
+
+            if (
+                window.VioletBank &&
+                typeof window.VioletBank.render === "function"
+            ) {
+                window.VioletBank.render(getState());
+            }
+
+            if (
+                window.VioletStock &&
+                typeof window.VioletStock.render === "function"
+            ) {
+                window.VioletStock.render(getState());
+            }
+        },
+
+        toast(title, message) {
+            showToast(title, message);
+        }
+    };
+
+
+    /* =====================================================
+       16. 알림 표시
+       ===================================================== */
+
+    function showToast(title, message) {
+        const container = document.getElementById(
+            "toast-stack"
+        );
+
+        /*
+         * 알림 영역이 없을 때도 기능은 계속 작동하도록 한다.
+         */
+
+        if (!container) {
+            console.log(
+                "[Violet Vault]",
+                title,
+                message || ""
+            );
+
+            return;
+        }
+
+        const toast = document.createElement("div");
+
+        toast.style.cssText = [
+            "padding:14px 16px",
+            "margin-top:8px",
+            "border:1px solid rgba(192,132,252,.4)",
+            "border-radius:12px",
+            "background:rgba(22,13,35,.97)",
+            "color:#f5efff",
+            "box-shadow:0 8px 30px rgba(0,0,0,.25)",
+            "font-size:12px",
+            "line-height:1.7",
+            "overflow-wrap:anywhere"
+        ].join(";");
+
+        const heading = document.createElement("strong");
+
+        heading.textContent = String(title || "Violet Vault");
+
+        heading.style.cssText = [
+            "display:block",
+            "margin-bottom:3px",
+            "color:#c084fc",
+            "font-weight:800"
+        ].join(";");
+
+        toast.appendChild(heading);
+
+        if (message) {
+            const body = document.createElement("div");
+
+            body.textContent = String(message);
+
+            toast.appendChild(body);
+        }
+
+        container.appendChild(toast);
+
+        window.setTimeout(() => {
+            toast.remove();
+        }, 4000);
+    }
+
+
+    window.VioletVaultApp = VioletVaultApp;
+
+
+    /* =====================================================
+       17. 저장 시스템 시작
+       ===================================================== */
+
+    currentState = normalizeState(
+        createDefaultState()
+    );
 
     console.log(
         "[Violet Vault Save] 저장 시스템 준비 완료."
+    );
+
+    console.log(
+        "[Violet Vault Save] SaveStore 호환 API 등록 완료."
     );
 
 })();
