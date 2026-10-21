@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    VIOLET VAULT
    Virtual Stock Market — stock.js
@@ -1610,4 +1609,3 @@
     );
 
 })();
-```
