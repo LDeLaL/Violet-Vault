@@ -38,8 +38,41 @@
        1. 기본 도구
        ===================================================== */
 
+    const DATA = window.VioletVaultData || {};
+    const CURRENCY = String(DATA.CURRENCY || "Q");
+
     function getElement(id) {
         return document.getElementById(id);
+    }
+
+    function resolveState(state) {
+        if (state && typeof state === "object") return state;
+
+        const stores = [
+            window.SaveStore,
+            window.VioletVaultSave,
+            window.VioletVaultApp
+        ];
+
+        for (const store of stores) {
+            if (store && typeof store.getState === "function") {
+                try {
+                    const current = store.getState();
+                    if (current && typeof current === "object") return current;
+                } catch (error) {
+                    console.error(
+                        "[Violet Vault Achievements] 상태 읽기 실패:",
+                        error
+                    );
+                }
+            }
+
+            if (store?.state && typeof store.state === "object") {
+                return store.state;
+            }
+        }
+
+        return null;
     }
 
     function safeNumber(value, fallback = 0) {
@@ -57,7 +90,7 @@
     }
 
     function formatQ(value) {
-        return `${formatNumber(value)} Q`;
+        return `${formatNumber(value)} ${CURRENCY}`;
     }
 
     function clamp(value, min, max) {
@@ -73,7 +106,9 @@
             .replaceAll("'", "&#039;");
     }
 
-    function ensureState(state) {
+    function ensureState(inputState) {
+        const state = resolveState(inputState);
+
         if (!state || typeof state !== "object") {
             return false;
         }
@@ -82,13 +117,69 @@
             state.unlockedAchievements = [];
         }
 
+        // 이전 저장 파일과 현재 저장 파일의 이름 호환
+        if (!Number.isFinite(Number(state.totalIncome))) {
+            state.totalIncome = safeNumber(state.totalEarned);
+        }
+
+        if (!Number.isFinite(Number(state.totalEarned))) {
+            state.totalEarned = safeNumber(state.totalIncome);
+        }
+
+        if (!Number.isFinite(Number(state.totalExpenses))) {
+            state.totalExpenses = safeNumber(state.totalSpent);
+        }
+
+        if (!Number.isFinite(Number(state.totalSpent))) {
+            state.totalSpent = safeNumber(state.totalExpenses);
+        }
+
+        if (!Number.isFinite(Number(state.bestWin))) {
+            state.bestWin = safeNumber(state.highestPrize);
+        }
+
+        if (!Number.isFinite(Number(state.highestPrize))) {
+            state.highestPrize = safeNumber(state.bestWin);
+        }
+
+        if (!Number.isFinite(Number(state.totalDraws))) {
+            state.totalDraws = 0;
+        }
+
+        if (!Number.isFinite(Number(state.balance))) {
+            state.balance = 0;
+        }
+
+        if (!Number.isFinite(Number(state.debt))) {
+            state.debt = 0;
+        }
+
+        if (!Number.isFinite(Number(state.stockPortfolioValue))) {
+            state.stockPortfolioValue = 0;
+        }
+
         if (!Array.isArray(state.history)) {
             state.history = [];
         }
 
         if (!Array.isArray(state.codex)) {
             state.codex = [];
+        } else {
+            state.codex = [...new Set(
+                state.codex
+                    .map(Number)
+                    .filter(value =>
+                        Number.isFinite(value) &&
+                        Number.isInteger(value)
+                    )
+            )];
         }
+
+        state.unlockedAchievements = [...new Set(
+            state.unlockedAchievements.filter(
+                value => typeof value === "string"
+            )
+        )];
 
         return true;
     }
@@ -179,19 +270,6 @@
 
     /* =====================================================
        3. 업적 데이터
-       =====================================================
-
-       goal:
-           업적을 달성하기 위한 목표값
-
-       getProgress(state):
-           현재 진행도를 반환하는 함수
-
-       특별 조건형 업적은:
-           진행도 0 = 미달성
-           진행도 1 = 달성 조건 충족
-
-       보상은 현재 지급하지 않는다.
        ===================================================== */
 
     const definitions = [
@@ -548,8 +626,10 @@
        4. 업적 진행도 조회
        ===================================================== */
 
-    function getProgress(achievement, state) {
-        if (!ensureState(state)) {
+    function getProgress(achievement, inputState) {
+        const state = resolveState(inputState);
+
+        if (!achievement || !ensureState(state)) {
             return 0;
         }
 
@@ -579,8 +659,10 @@
     }
 
 
-    function isUnlocked(achievement, state) {
-        if (!ensureState(state)) {
+    function isUnlocked(achievement, inputState) {
+        const state = resolveState(inputState);
+
+        if (!achievement || !ensureState(state)) {
             return false;
         }
 
@@ -597,7 +679,9 @@
     }
 
 
-    function getUnlockedCount(state) {
+    function getUnlockedCount(inputState) {
+        const state = resolveState(inputState);
+
         if (!ensureState(state)) {
             return 0;
         }
@@ -612,16 +696,9 @@
        5. 업적 확인 및 달성 처리
        ===================================================== */
 
-    /*
-     * script.js에서 자체 업적 검사를 수행한다.
-     *
-     * 이 함수는 다른 시스템에서 직접 업적을 검사하거나,
-     * 은행 또는 주식 거래 후 진행도를 갱신할 때 사용할 수 있다.
-     *
-     * 이미 달성한 업적은 중복 등록되지 않는다.
-     */
+    function check(inputState, options = {}) {
+        const state = resolveState(inputState);
 
-    function check(state) {
         if (!ensureState(state)) {
             return [];
         }
@@ -642,18 +719,35 @@
                 state.unlockedAchievements.push(achievement.id);
                 newlyUnlocked.push(achievement);
 
-                /*
-                 * script.js가 이미 초기화된 경우
-                 * 공통 알림 기능을 사용한다.
-                 */
+                // 화면을 렌더링할 때는 달성 알림을 띄우지 않는다.
+                if (options.silent) {
+                    return;
+                }
 
+                const message = `${achievement.name} 업적을 달성했어!`;
                 const app = window.VioletVaultApp;
 
                 if (app && typeof app.toast === "function") {
-                    app.toast(
-                        "업적 달성!",
-                        `${achievement.name} 업적을 달성했어!`
-                    );
+                    try {
+                        app.toast("업적 달성!", message);
+                    } catch (error) {
+                        console.error(
+                            "[Violet Vault Achievements] 달성 알림 실패:",
+                            error
+                        );
+                    }
+                } else if (
+                    window.UI &&
+                    typeof window.UI.toast === "function"
+                ) {
+                    try {
+                        window.UI.toast(`업적 달성! ${message}`);
+                    } catch (error) {
+                        console.error(
+                            "[Violet Vault Achievements] 달성 알림 실패:",
+                            error
+                        );
+                    }
                 }
             }
         });
@@ -666,9 +760,14 @@
        6. 진행도 텍스트
        ===================================================== */
 
-    function getProgressLabel(achievement, state) {
+    function getProgressLabel(achievement, inputState) {
+        const state = resolveState(inputState);
         const progress = getProgress(achievement, state);
         const goal = getGoal(achievement);
+
+        if (!state || !achievement) {
+            return `0 / ${formatNumber(goal)} ${achievement?.unit || ""}`.trim();
+        }
 
         if (isUnlocked(achievement, state)) {
             return "달성 완료";
@@ -694,7 +793,8 @@
     }
 
 
-    function getProgressPercent(achievement, state) {
+    function getProgressPercent(achievement, inputState) {
+        const state = resolveState(inputState);
         const progress = getProgress(achievement, state);
         const goal = getGoal(achievement);
 
@@ -791,29 +891,21 @@
        8. 업적 미리보기
        ===================================================== */
 
-    /*
-     * index.html의 #achievement-preview 영역을 사용한다.
-     *
-     * script.js에서 호출:
-     * VioletAchievements.renderPreview(state)
-     */
+    function renderPreview(inputState) {
+        const state = resolveState(inputState);
 
-    function renderPreview(state) {
         if (!ensureState(state)) {
             return;
         }
+
+        // 완료된 업적 ID를 동기화하되, 알림을 한꺼번에 띄우지 않는다.
+        check(state, { silent: true });
 
         const container = getElement("achievement-preview");
 
         if (!container) {
             return;
         }
-
-        /*
-         * 우선순위:
-         * 아직 달성하지 못한 업적 중 진행도가 높은 것,
-         * 그다음 달성한 업적.
-         */
 
         const sorted = [...definitions].sort((a, b) => {
             const unlockedA = isUnlocked(a, state);
@@ -869,15 +961,15 @@
        9. 전체 업적 목록
        ===================================================== */
 
-    /*
-     * script.js에서 호출:
-     * VioletAchievements.renderAll(state)
-     */
+    function renderAll(inputState) {
+        const state = resolveState(inputState);
 
-    function renderAll(state) {
         if (!ensureState(state)) {
             return;
         }
+
+        // 화면 표시와 저장된 완료 ID를 동기화한다.
+        check(state, { silent: true });
 
         const container = getElement("achievements-content");
 
@@ -887,6 +979,10 @@
 
         const unlockedCount = getUnlockedCount(state);
         const totalCount = definitions.length;
+
+        const overallPercent = totalCount > 0
+            ? clamp(unlockedCount / totalCount * 100, 0, 100)
+            : 0;
 
         const unlocked = definitions.filter(
             achievement => isUnlocked(achievement, state)
@@ -989,13 +1085,11 @@
                         aria-label="전체 업적 달성률"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        aria-valuenow="${Math.round(
-                            unlockedCount / totalCount * 100
-                        )}">
+                        aria-valuenow="${Math.round(overallPercent)}">
 
                         <div
                             class="achievement-total-fill"
-                            style="width:${unlockedCount / totalCount * 100}%">
+                            style="width:${overallPercent}%">
                         </div>
                     </div>
 
@@ -1030,7 +1124,9 @@
      * 돈, 도감, 주식 및 대출 데이터는 건드리지 않는다.
      */
 
-    function reset(state) {
+    function reset(inputState) {
+        const state = resolveState(inputState);
+
         if (!ensureState(state)) {
             return false;
         }
@@ -1065,6 +1161,18 @@
         getUnlockedCount,
 
         reset,
+
+        getAchievement(id) {
+            return definitions.find(
+                item => item.id === id
+            ) || null;
+        },
+
+        getUnlockedIds(state = resolveState()) {
+            return ensureState(state)
+                ? [...state.unlockedAchievements]
+                : [];
+        },
 
         get totalAchievements() {
             return definitions.length;
