@@ -1,92 +1,42 @@
 /* =========================================================
    VIOLET VAULT
    Codex System — codex.js
-   =========================================================
-
-   담당 기능
-   - 1 Q부터 100 Q까지 총 100종의 도감 관리
-   - 수집한 금액과 미수집 금액 구분
-   - 희귀도 표시
-   - 도감 수집률 계산
-   - 도감 검색
-   - 수집 상태별 필터
-   - 금액 정렬
-   - 다른 시스템에서 사용할 수 있는 도감 API 제공
-
-   연결 파일
-   - index.html
-   - codex.css
-   - script.js
-   - data.js
-   - rarity.js
-
-   저장 데이터
-   - script.js의 state.codex 배열 사용
-
-   중요
-   - 도감 데이터는 script.js의 게임 상태와 공유한다.
-   - 이 파일은 수집 데이터를 별도로 중복 저장하지 않는다.
+   Compatible with data.js, rarity.js, save.js and script.js
    ========================================================= */
-
 (() => {
     "use strict";
 
-
-    /* =====================================================
-       1. 기본 설정
-       ===================================================== */
-
     const DATA = window.VioletVaultData || {};
-
-    const CODEX_CONFIG = DATA.CODEX_CONFIG || {};
-
-    const MIN_AMOUNT = Number.isInteger(CODEX_CONFIG.MIN_AMOUNT)
-        ? CODEX_CONFIG.MIN_AMOUNT
+    const CONFIG = DATA.CODEX_CONFIG || {};
+    const MIN_AMOUNT = Number.isInteger(Number(CONFIG.MIN_AMOUNT))
+        ? Number(CONFIG.MIN_AMOUNT)
         : 1;
-
-    const MAX_AMOUNT = Number.isInteger(CODEX_CONFIG.MAX_AMOUNT)
-        ? CODEX_CONFIG.MAX_AMOUNT
+    const MAX_AMOUNT = Number.isInteger(Number(CONFIG.MAX_AMOUNT))
+        ? Number(CONFIG.MAX_AMOUNT)
         : 100;
-
-    const TOTAL_VARIANTS = Math.max(
-        1,
-        MAX_AMOUNT - MIN_AMOUNT + 1
-    );
-
-
-    /* =====================================================
-       2. 내부 상태
-       ===================================================== */
+    const TOTAL_VARIANTS = Math.max(0, MAX_AMOUNT - MIN_AMOUNT + 1);
+    const CURRENCY = String(DATA.CURRENCY || "Q");
 
     let currentState = null;
-
     let currentFilter = "all";
-
     let currentSort = "ascending";
-
     let currentSearch = "";
 
-    let layoutInitialized = false;
-
-
-    /* =====================================================
-       3. 공통 보조 함수
-       ===================================================== */
-
-    function getElement(id) {
-        return document.getElementById(id);
-    }
-
+    const $ = (id) => document.getElementById(id);
 
     function escapeHTML(value) {
         return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
+    function amountNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : NaN;
+    }
 
     function formatAmount(value) {
         return Number(value).toLocaleString("en-US", {
@@ -94,20 +44,48 @@
         });
     }
 
-
     function formatQ(value) {
-        return `${formatAmount(value)} Q`;
+        return `${formatAmount(value)} ${CURRENCY}`;
     }
-
 
     function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
     }
 
+    /* ---------------------------------------------------------
+       1. 게임 상태 연결
+       --------------------------------------------------------- */
 
-    /* =====================================================
-       4. 게임 상태 검사
-       ===================================================== */
+    function resolveState() {
+        const stores = [
+            window.SaveStore,
+            window.VioletVaultSave,
+            window.VioletVaultApp
+        ];
+
+        for (const store of stores) {
+            if (store && typeof store.getState === "function") {
+                try {
+                    const state = store.getState();
+
+                    if (state && typeof state === "object") {
+                        return state;
+                    }
+                } catch (error) {
+                    console.error(
+                        "[Violet Vault Codex] 상태 읽기 실패:",
+                        error
+                    );
+                }
+            }
+
+            if (store?.state && typeof store.state === "object") {
+                return store.state;
+            }
+        }
+
+        return currentState;
+    }
 
     function ensureState(state) {
         if (!state || typeof state !== "object") {
@@ -118,290 +96,249 @@
             state.codex = [];
         }
 
-        /*
-         * 잘못된 값과 중복 값을 정리한다.
-         *
-         * 정상적인 도감 항목:
-         * 1, 2, 3 ... 99, 100
-         */
+        const normalized = [...new Set(
+            state.codex
+                .map(amountNumber)
+                .filter(amount =>
+                    Number.isInteger(amount) &&
+                    amount >= MIN_AMOUNT &&
+                    amount <= MAX_AMOUNT
+                )
+        )].sort((a, b) => a - b);
 
-        state.codex = [
-            ...new Set(
-                state.codex
-                    .map(Number)
-                    .filter(amount =>
-                        Number.isInteger(amount) &&
-                        amount >= MIN_AMOUNT &&
-                        amount <= MAX_AMOUNT
-                    )
-            )
-        ].sort((a, b) => a - b);
+        state.codex = normalized;
 
         return true;
     }
 
+    /* ---------------------------------------------------------
+       2. 수집 데이터 API
+       --------------------------------------------------------- */
 
-    /* =====================================================
-       5. 수집 데이터 조회
-       ===================================================== */
-
-    /**
-     * 수집한 금액 목록을 반환한다.
-     */
-
-    function getCollectedAmounts(state = currentState) {
+    function getCollectedAmounts(state = resolveState()) {
         if (!ensureState(state)) {
             return [];
         }
 
-        return [...state.codex].sort((a, b) => a - b);
+        return [...state.codex];
     }
 
-
-    /**
-     * 특정 금액을 수집했는지 확인한다.
-     */
-
-    function isCollected(amount, state = currentState) {
+    function isCollected(amount, state = resolveState()) {
         if (!ensureState(state)) {
             return false;
         }
 
-        const value = Number(amount);
+        const value = amountNumber(amount);
 
-        if (!Number.isInteger(value)) {
-            return false;
-        }
-
-        return state.codex.includes(value);
+        return Number.isInteger(value) &&
+            state.codex.includes(value);
     }
 
-
-    /**
-     * 총 수집 개수를 반환한다.
-     */
-
-    function getCollectedCount(state = currentState) {
+    function getCollectedCount(state = resolveState()) {
         return getCollectedAmounts(state).length;
     }
 
-
-    /**
-     * 도감 수집률을 반환한다.
-     */
-
-    function getCompletion(state = currentState) {
-        const count = getCollectedCount(state);
+    function getCompletion(state = resolveState()) {
+        if (TOTAL_VARIANTS <= 0) {
+            return 100;
+        }
 
         return clamp(
-            count / TOTAL_VARIANTS * 100,
+            getCollectedCount(state) / TOTAL_VARIANTS * 100,
             0,
             100
         );
     }
 
-
-    /**
-     * 특정 금액을 도감에 등록한다.
-     *
-     * 이미 수집한 금액은 중복 등록하지 않는다.
-     *
-     * 이 함수를 직접 호출한 경우 저장은 호출자가 담당한다.
-     */
-
-    function add(amount, state = currentState) {
+    // 실제 저장은 호출하는 게임 시스템이 담당한다.
+    function add(amount, state = resolveState()) {
         if (!ensureState(state)) {
             return false;
         }
 
-        const value = Number(amount);
+        const value = amountNumber(amount);
 
         if (
             !Number.isInteger(value) ||
             value < MIN_AMOUNT ||
-            value > MAX_AMOUNT
+            value > MAX_AMOUNT ||
+            state.codex.includes(value)
         ) {
-            return false;
-        }
-
-        if (state.codex.includes(value)) {
             return false;
         }
 
         state.codex.push(value);
-
         state.codex.sort((a, b) => a - b);
+
+        if (state === currentState) {
+            render(state);
+        }
 
         return true;
     }
 
-
-    /* =====================================================
-       6. 희귀도 조회
-       ===================================================== */
-
-    /**
-     * rarity.js가 구현되어 있다면 해당 시스템을 사용한다.
-     * 아직 사용할 수 없다면 data.js의 정보를 확인한다.
-     */
-
-    function getRarityInfo(amount) {
-        const raritySystem = window.VioletRarity;
-
-        if (
-            raritySystem &&
-            typeof raritySystem.getRarityInfo === "function"
-        ) {
-            const result = raritySystem.getRarityInfo(amount);
-
-            if (result && typeof result === "object") {
-                return normalizeRarity(result);
-            }
-        }
-
-        if (
-            typeof DATA.getRarityByAmount === "function"
-        ) {
-            const result = DATA.getRarityByAmount(amount);
-
-            if (result) {
-                return normalizeRarity(result);
-            }
-        }
-
-        return getFallbackRarity(amount);
-    }
-
-
-    /**
-     * 희귀도 데이터의 프로퍼티 이름을 통일한다.
-     */
+    /* ---------------------------------------------------------
+       3. 희귀도 처리
+       --------------------------------------------------------- */
 
     function normalizeRarity(rarity) {
         const rawClassName = String(
-            rarity.className ||
-            `rarity-${rarity.id || "common"}`
+            rarity?.className ||
+            `rarity-${rarity?.id || "common"}`
         );
-
-        /*
-         * HTML 클래스에 사용할 수 있는 문자만 허용한다.
-         */
 
         const safeClassName = rawClassName
             .split(/\s+/)
             .filter(name => /^[a-zA-Z0-9_-]+$/.test(name))
             .join(" ");
 
+        const rawColor = String(rarity?.color || "");
+
+        const color = /^#[0-9a-fA-F]{3,8}$/.test(rawColor)
+            ? rawColor
+            : "#aaa2bb";
+
         return {
-            id: rarity.id || "common",
-
-            name: rarity.name || "Common",
-
-            description: rarity.description || "",
-
+            id: String(rarity?.id || "common"),
+            name: String(rarity?.name || "Common"),
+            description: String(rarity?.description || ""),
             className: safeClassName || "rarity-common",
-
-            color: /^#[0-9a-fA-F]{3,8}$/.test(
-                String(rarity.color || "")
-            )
-                ? rarity.color
-                : "#aaa2bb",
-
-            symbol: rarity.symbol || "◇"
+            color,
+            symbol: String(rarity?.symbol || "◇")
         };
     }
-
-
-    /**
-     * 희귀도 시스템이 아직 없을 때 사용할 기본 데이터.
-     */
 
     function getFallbackRarity(amount) {
         const value = Number(amount);
 
         const definitions = [
             {
+                id: "common",
                 name: "Common",
                 min: 1,
                 max: 10,
+                description: "가장 기본적인 등급.",
                 className: "rarity-common",
                 color: "#aaa2bb",
                 symbol: "◇"
             },
             {
+                id: "uncommon",
                 name: "Uncommon",
                 min: 11,
                 max: 25,
+                description: "조금 더 특별한 등급.",
                 className: "rarity-uncommon",
                 color: "#73dca5",
                 symbol: "✧"
             },
             {
+                id: "rare",
                 name: "Rare",
                 min: 26,
                 max: 45,
+                description: "쉽게 만나기 어려운 등급.",
                 className: "rarity-rare",
                 color: "#62a9ff",
                 symbol: "✦"
             },
             {
+                id: "epic",
                 name: "Epic",
                 min: 46,
                 max: 65,
+                description: "높은 금액의 등급.",
                 className: "rarity-epic",
                 color: "#bd83ff",
                 symbol: "✷"
             },
             {
+                id: "legendary",
                 name: "Legendary",
                 min: 66,
                 max: 85,
+                description: "매우 특별한 당첨 등급.",
                 className: "rarity-legendary",
                 color: "#ffcf70",
                 symbol: "♛"
             },
             {
+                id: "mythic",
                 name: "Mythic",
                 min: 86,
                 max: 99,
+                description: "아주 높은 금액의 등급.",
                 className: "rarity-mythic",
                 color: "#ff80d0",
                 symbol: "☄"
             },
             {
+                id: "ultimate",
                 name: "Ultimate",
                 min: 100,
                 max: 100,
+                description: "현재 당첨 가능한 최고 금액.",
                 className: "rarity-ultimate",
                 color: "#f1d5ff",
                 symbol: "✹"
             }
         ];
 
-        const rarity = definitions.find(item =>
-            value >= item.min &&
-            value <= item.max
-        );
-
         return normalizeRarity(
-            rarity || definitions[0]
+            definitions.find(item =>
+                value >= item.min && value <= item.max
+            ) || definitions[0]
         );
     }
 
+    function getRarityInfo(amount) {
+        const raritySystem = window.VioletRarity;
 
-    /* =====================================================
-       7. 도감 화면 초기 구조
-       ===================================================== */
+        if (typeof raritySystem?.getRarityInfo === "function") {
+            try {
+                const result = raritySystem.getRarityInfo(amount);
+
+                if (result && typeof result === "object") {
+                    return normalizeRarity(result);
+                }
+            } catch (error) {
+                console.error(
+                    "[Violet Vault Codex] 희귀도 조회 실패:",
+                    error
+                );
+            }
+        }
+
+        if (typeof DATA.getRarityByAmount === "function") {
+            try {
+                const result = DATA.getRarityByAmount(amount);
+
+                if (result) {
+                    return normalizeRarity(result);
+                }
+            } catch (error) {
+                console.error(
+                    "[Violet Vault Codex] 기본 희귀도 조회 실패:",
+                    error
+                );
+            }
+        }
+
+        return getFallbackRarity(amount);
+    }
+
+    /* ---------------------------------------------------------
+       4. 도감 화면 생성
+       --------------------------------------------------------- */
 
     function initializeLayout() {
-        const container = getElement("codex-content");
+        const container = $("codex-content");
 
         if (!container) {
             return false;
         }
 
         if (container.dataset.codexReady === "true") {
-            layoutInitialized = true;
             return true;
         }
 
@@ -409,7 +346,9 @@
             <div class="codex-interface">
 
                 <div class="codex-overview">
+
                     <div class="codex-overview-heading">
+
                         <span class="codex-overview-label">
                             COLLECTION PROGRESS
                         </span>
@@ -419,6 +358,7 @@
                             class="codex-progress-text">
                             0 / ${TOTAL_VARIANTS}
                         </strong>
+
                     </div>
 
                     <div
@@ -434,6 +374,7 @@
                             id="codex-progress-fill"
                             class="codex-progress-fill">
                         </div>
+
                     </div>
 
                     <p
@@ -441,12 +382,13 @@
                         class="codex-progress-description">
                         아직 수집을 시작하지 않았어.
                     </p>
-                </div>
 
+                </div>
 
                 <div class="codex-toolbar">
 
                     <div class="codex-search-wrapper">
+
                         <label
                             class="codex-visually-hidden"
                             for="codex-search">
@@ -465,8 +407,8 @@
                             type="search"
                             placeholder="금액 또는 희귀도 검색..."
                             autocomplete="off">
-                    </div>
 
+                    </div>
 
                     <div class="codex-filter-wrapper">
 
@@ -494,7 +436,6 @@
 
                         </select>
 
-
                         <label
                             class="codex-visually-hidden"
                             for="codex-sort">
@@ -519,12 +460,10 @@
 
                 </div>
 
-
                 <div
                     id="codex-grid"
                     class="codex-grid">
                 </div>
-
 
                 <p
                     id="codex-empty"
@@ -533,8 +472,8 @@
                     조건에 맞는 도감 항목이 없어.
                 </p>
 
-
                 <div class="codex-footer">
+
                     <span id="codex-visible-count">
                         0개 표시 중
                     </span>
@@ -542,6 +481,7 @@
                     <span>
                         총 ${TOTAL_VARIANTS}종
                     </span>
+
                 </div>
 
             </div>
@@ -549,24 +489,27 @@
 
         container.dataset.codexReady = "true";
 
-        bindLayoutEvents();
-
-        layoutInitialized = true;
+        bindLayoutEvents(container);
 
         return true;
     }
 
+    /* ---------------------------------------------------------
+       5. 검색·필터·정렬 이벤트
+       --------------------------------------------------------- */
 
-    /* =====================================================
-       8. 검색 및 필터 이벤트
-       ===================================================== */
+    function bindLayoutEvents(container) {
+        const searchInput = $("codex-search");
+        const filterSelect = $("codex-filter");
+        const sortSelect = $("codex-sort");
 
-    function bindLayoutEvents() {
-        const searchInput = getElement("codex-search");
-        const filterSelect = getElement("codex-filter");
-        const sortSelect = getElement("codex-sort");
+        // 새로 생성된 입력 요소마다 이벤트를 한 번만 등록한다.
+        if (
+            searchInput &&
+            searchInput.dataset.bound !== "true"
+        ) {
+            searchInput.dataset.bound = "true";
 
-        if (searchInput) {
             searchInput.addEventListener("input", () => {
                 currentSearch = searchInput.value
                     .trim()
@@ -576,29 +519,43 @@
             });
         }
 
-        if (filterSelect) {
+        if (
+            filterSelect &&
+            filterSelect.dataset.bound !== "true"
+        ) {
+            filterSelect.dataset.bound = "true";
+
             filterSelect.addEventListener("change", () => {
                 currentFilter = filterSelect.value;
-
                 renderEntries();
             });
         }
 
-        if (sortSelect) {
+        if (
+            sortSelect &&
+            sortSelect.dataset.bound !== "true"
+        ) {
+            sortSelect.dataset.bound = "true";
+
             sortSelect.addEventListener("change", () => {
                 currentSort = sortSelect.value;
-
                 renderEntries();
             });
         }
+
+        void container;
     }
 
-
-    /* =====================================================
-       9. 도감 항목 데이터 생성
-       ===================================================== */
+    /* ---------------------------------------------------------
+       6. 도감 항목 생성 및 필터링
+       --------------------------------------------------------- */
 
     function getAllEntries() {
+        if (!ensureState(currentState)) {
+            return [];
+        }
+
+        const collected = new Set(currentState.codex);
         const entries = [];
 
         for (
@@ -606,55 +563,28 @@
             amount <= MAX_AMOUNT;
             amount++
         ) {
-            const collected = isCollected(amount);
-
-            const rarity = getRarityInfo(amount);
-
             entries.push({
                 amount,
-                collected,
-                rarity
+                collected: collected.has(amount),
+                rarity: getRarityInfo(amount)
             });
         }
 
         return entries;
     }
 
-
-    /* =====================================================
-       10. 도감 검색 및 필터
-       ===================================================== */
-
     function filterEntries(entries) {
         let result = [...entries];
 
-        /*
-         * 수집 상태
-         */
-
         if (currentFilter === "collected") {
-            result = result.filter(
-                entry => entry.collected
-            );
+            result = result.filter(entry => entry.collected);
+        } else if (currentFilter === "missing") {
+            result = result.filter(entry => !entry.collected);
         }
-
-        if (currentFilter === "missing") {
-            result = result.filter(
-                entry => !entry.collected
-            );
-        }
-
-        /*
-         * 검색어
-         */
 
         if (currentSearch) {
+            // 미수집 금액은 검색을 통해서도 공개하지 않는다.
             result = result.filter(entry => {
-                /*
-                 * 아직 수집하지 않은 금액은
-                 * 검색 결과에서도 숫자를 노출하지 않는다.
-                 */
-
                 if (!entry.collected) {
                     return false;
                 }
@@ -675,30 +605,34 @@
             });
         }
 
-        /*
-         * 정렬
-         */
-
         result.sort((a, b) => {
-            if (currentSort === "descending") {
-                return b.amount - a.amount;
-            }
-
-            return a.amount - b.amount;
+            return currentSort === "descending"
+                ? b.amount - a.amount
+                : a.amount - b.amount;
         });
 
         return result;
     }
 
+    /* ---------------------------------------------------------
+       7. 진행도 표시
+       --------------------------------------------------------- */
 
-    /* =====================================================
-       11. 도감 진행도 표시
-       ===================================================== */
+    function setText(id, value) {
+        const element = $(id);
+
+        if (element) {
+            element.textContent = String(value);
+        }
+    }
 
     function renderProgress() {
-        const collectedCount = getCollectedCount();
-
-        const percentage = getCompletion();
+        const collectedCount = getCollectedCount(currentState);
+        const percentage = getCompletion(currentState);
+        const remaining = Math.max(
+            0,
+            TOTAL_VARIANTS - collectedCount
+        );
 
         setText(
             "codex-count",
@@ -721,10 +655,10 @@
                 ? "축하해! 모든 금액을 수집했어!"
                 : collectedCount === 0
                     ? "뽑기를 진행해 도감을 채워 보자!"
-                    : `아직 ${TOTAL_VARIANTS - collectedCount}종의 금액이 남아 있어.`
+                    : `아직 ${remaining}종의 금액이 남아 있어.`
         );
 
-        const progressBar = getElement("codex-progress-bar");
+        const progressBar = $("codex-progress-bar");
 
         if (progressBar) {
             progressBar.setAttribute(
@@ -733,38 +667,31 @@
             );
         }
 
-        const progressFill = getElement("codex-progress-fill");
+        const progressFill = $("codex-progress-fill");
 
         if (progressFill) {
             progressFill.style.width = `${percentage}%`;
         }
     }
 
-
-    /* =====================================================
-       12. 도감 항목 표시
-       ===================================================== */
+    /* ---------------------------------------------------------
+       8. 도감 카드 표시
+       --------------------------------------------------------- */
 
     function renderEntries() {
-        if (!currentState) {
+        if (!ensureState(currentState)) {
             return;
         }
 
-        const grid = getElement("codex-grid");
-        const empty = getElement("codex-empty");
-        const visibleCount = getElement("codex-visible-count");
+        const grid = $("codex-grid");
+        const empty = $("codex-empty");
+        const visibleCount = $("codex-visible-count");
 
         if (!grid) {
             return;
         }
 
-        const allEntries = getAllEntries();
-
-        const filteredEntries = filterEntries(allEntries);
-
-        /*
-         * 결과가 없을 때 표시할 안내문
-         */
+        const filteredEntries = filterEntries(getAllEntries());
 
         if (filteredEntries.length === 0) {
             grid.innerHTML = "";
@@ -788,15 +715,9 @@
             empty.hidden = true;
         }
 
-        /*
-         * 카드 생성
-         */
-
         grid.innerHTML = filteredEntries.map(entry => {
             const amount = entry.amount;
-
             const rarity = entry.rarity;
-
             const collected = entry.collected;
 
             const cardClass = collected
@@ -804,8 +725,8 @@
                 : "codex-item is-locked";
 
             const amountLabel = collected
-                ? `${formatAmount(amount)} Q`
-                : "??? Q";
+                ? `${formatAmount(amount)} ${CURRENCY}`
+                : `??? ${CURRENCY}`;
 
             const rarityLabel = collected
                 ? rarity.name
@@ -839,7 +760,6 @@
 
                     </div>
 
-
                     <div class="codex-item-main">
 
                         <strong class="codex-item-amount">
@@ -852,11 +772,9 @@
 
                     </div>
 
-
                     <p class="codex-item-description">
                         ${escapeHTML(description)}
                     </p>
-
 
                     <div
                         class="codex-item-accent"
@@ -873,59 +791,39 @@
         }
     }
 
-
-    /* =====================================================
-       13. 화면에 텍스트 표시
-       ===================================================== */
-
-    function setText(id, value) {
-        const element = getElement(id);
-
-        if (element) {
-            element.textContent = String(value);
-        }
-    }
-
-
-    /* =====================================================
-       14. 도감 렌더링
-       ===================================================== */
-
-    /**
-     * script.js의 renderAll()에서 호출한다.
-     *
-     * VioletCodex.render(state);
-     */
+    /* ---------------------------------------------------------
+       9. 도감 렌더링 및 필터 초기화
+       --------------------------------------------------------- */
 
     function render(state) {
-        if (!ensureState(state)) {
-            return;
+        const resolved = state && typeof state === "object"
+            ? state
+            : resolveState();
+
+        if (!ensureState(resolved)) {
+            return false;
         }
 
-        currentState = state;
+        currentState = resolved;
 
         if (!initializeLayout()) {
-            return;
+            return false;
         }
 
         renderProgress();
-
         renderEntries();
+
+        return true;
     }
-
-
-    /* =====================================================
-       15. 도감 검색 초기화
-       ===================================================== */
 
     function resetFilters() {
         currentFilter = "all";
         currentSort = "ascending";
         currentSearch = "";
 
-        const searchInput = getElement("codex-search");
-        const filterSelect = getElement("codex-filter");
-        const sortSelect = getElement("codex-sort");
+        const searchInput = $("codex-search");
+        const filterSelect = $("codex-filter");
+        const sortSelect = $("codex-sort");
 
         if (searchInput) {
             searchInput.value = "";
@@ -942,43 +840,43 @@
         renderEntries();
     }
 
+    function refresh() {
+        return render(resolveState());
+    }
 
-    /* =====================================================
-       16. 공개 API
-       ===================================================== */
+    /* ---------------------------------------------------------
+       10. 외부 모듈용 API
+       --------------------------------------------------------- */
 
     const VioletCodex = {
+        init: render,
         render,
+        refresh,
 
         add,
-
         isCollected,
 
         getCollectedAmounts,
-
         getCollectedCount,
-
         getCompletion,
-
         getRarityInfo,
 
         resetFilters,
 
         get totalVariants() {
             return TOTAL_VARIANTS;
+        },
+
+        get minAmount() {
+            return MIN_AMOUNT;
+        },
+
+        get maxAmount() {
+            return MAX_AMOUNT;
         }
     };
 
-
-    /* =====================================================
-       17. 전역 등록
-       ===================================================== */
-
     window.VioletCodex = VioletCodex;
 
-
-    console.log(
-        "[Violet Vault] 도감 시스템 로드 완료."
-    );
-
+    console.log("[Violet Vault] 도감 시스템 로드 완료.");
 })();
